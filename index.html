@@ -132,7 +132,8 @@ button{font-family:'Jua',sans-serif;border:none;cursor:pointer;}
 .tile.hint-glow{box-shadow:0 0 0 5px rgba(245,213,138,.7),0 6px 0 var(--wood-dk);animation:glowPulse 1s infinite;}
 .tile.wrong-mark::after{content:'❌';position:absolute;top:-12px;right:-12px;font-size:22px;}
 .tile.dragging-src{opacity:.35;}
-#drag-ghost{position:fixed;z-index:999;pointer-events:none;display:none;}
+#drag-ghost{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;display:none;
+  will-change:transform;transform:translate3d(-9999px,-9999px,0);}
 .pool-hole{width:72px;height:80px;border-radius:12px;background:rgba(0,0,0,.08);border:2px dashed rgba(92,64,48,.25);}
 
 .game-btns{display:flex;gap:16px;}
@@ -344,8 +345,9 @@ button{font-family:'Jua',sans-serif;border:none;cursor:pointer;}
 
   <!-- 커스텀 툴팁 -->
   <div id="tooltip"></div>
-  <div id="drag-ghost"></div>
 </div>
+
+<div id="drag-ghost"></div>
 
 <audio id="au-correct" src="correct.mp3" preload="auto"></audio>
 <audio id="au-wrong" src="wrong.mp3" preload="auto"></audio>
@@ -406,15 +408,59 @@ document.querySelectorAll('.starfield').forEach(f=>{
 /* ══════════ BGM / 효과음 ══════════ */
 const bgm=document.getElementById('au-bgm');
 const bgmBtn=document.getElementById('btn-bgm');
-let bgmOn=true, bgmStarted=false;   // 기본 제공(ON), 브라우저 정책상 첫 터치 후 재생 시작
-bgm.volume=.4;
-function syncBgmBtn(){bgmBtn.classList.toggle('off',!bgmOn);bgmBtn.textContent=bgmOn?'🎵':'🔇';}
+let bgmOn=true;                       // 기본 ON (브라우저 정책상 첫 조작 후 실제 재생 시작)
+bgm.volume=.4; bgm.loop=true; bgm.load();
+
+function syncBgmBtn(){
+  bgmBtn.classList.toggle('off',!bgmOn);
+  bgmBtn.textContent = bgmOn ? '🎵' : '🔇';
+}
 syncBgmBtn();
-bgmBtn.onclick=()=>{bgmOn=!bgmOn;bgmStarted=true;syncBgmBtn();
-  if(bgmOn){bgm.play().catch(()=>{});}else bgm.pause();};
-document.addEventListener('pointerdown',()=>{
-  if(!bgmStarted){bgmStarted=true;if(bgmOn)bgm.play().catch(()=>{});}
+
+// 실제 재생을 시도하고, 차단되면 다음 사용자 조작 때 자동 재시도
+function tryPlayBgm(){
+  if(!bgmOn) return;
+  const p = bgm.play();
+  if(p && p.catch) p.catch(()=>{ armUnlock(); });   // 차단됨 → 다시 대기
+}
+let unlockArmed=false;
+function unlockOnce(){
+  ['pointerdown','pointerup','click','touchend','keydown'].forEach(ev=>
+    document.removeEventListener(ev,unlockOnce,true));
+  unlockArmed=false;
+  tryPlayBgm();
+}
+function armUnlock(){
+  if(unlockArmed) return;
+  unlockArmed=true;
+  ['pointerdown','pointerup','click','touchend','keydown'].forEach(ev=>
+    document.addEventListener(ev,unlockOnce,true));
+}
+// 재생이 실제로 시작되면 대기 해제
+bgm.addEventListener('playing',()=>{
+  if(unlockArmed){
+    ['pointerdown','pointerup','click','touchend','keydown'].forEach(ev=>
+      document.removeEventListener(ev,unlockOnce,true));
+    unlockArmed=false;
+  }
 });
+// 파일을 못 불러오면 버튼으로 알려주기 (경로·파일명 오류 진단용)
+bgm.addEventListener('error',()=>{
+  bgmOn=false; syncBgmBtn();
+  bgmBtn.textContent='⚠️';
+  bgmBtn.title='배경음악 파일을 찾을 수 없습니다. anagram_background_music.mp3 파일이 HTML과 같은 폴더에 있는지 확인하세요.';
+});
+
+// 버튼 클릭은 전역 언락 핸들러와 충돌하지 않도록 분리
+bgmBtn.addEventListener('pointerdown',e=>e.stopPropagation());
+bgmBtn.onclick=e=>{
+  e.stopPropagation();
+  bgmOn=!bgmOn; syncBgmBtn();
+  if(bgmOn) tryPlayBgm(); else bgm.pause();
+};
+
+// 로드 직후 1회 시도 → 막히면 첫 조작 때 자동 재생
+tryPlayBgm(); armUnlock();
 function sfx(id){const a=document.getElementById(id);a.currentTime=0;a.play().catch(()=>{});}
 
 /* ══════════ 타이틀 ══════════ */
@@ -552,20 +598,26 @@ function dragStart(e){
   const t=e.currentTarget;
   drag={from:t.dataset.from,idx:+t.dataset.idx,ch:t.textContent,el:t};
   t.classList.add('dragging-src');
+  // 타일 안에서 '잡은 지점'을 기억해 커서와 완전히 붙어 움직이도록 함
+  const r=t.getBoundingClientRect();
+  drag.gx=e.clientX-r.left; drag.gy=e.clientY-r.top;
   ghost.innerHTML='';const g=t.cloneNode(true);g.classList.remove('dragging-src');
   g.style.transform=`scale(${SCALE})`;g.style.transformOrigin='top left';
+  g.style.margin='0';
   ghost.appendChild(g);ghost.style.display='block';
   moveGhost(e);
+  if(t.setPointerCapture){try{t.setPointerCapture(e.pointerId);}catch(_){}}
   window.addEventListener('pointermove',moveGhost);
   window.addEventListener('pointerup',dragEnd,{once:true});
 }
 function moveGhost(e){
-  ghost.style.left=(e.clientX-30*SCALE)+'px';
-  ghost.style.top=(e.clientY-36*SCALE)+'px';
+  if(!drag)return;
+  // 고스트는 #stage 바깥(body 직속)이므로 뷰포트 좌표를 그대로 사용 → 커서와 1:1로 붙어 이동
+  ghost.style.transform=`translate3d(${e.clientX-drag.gx}px,${e.clientY-drag.gy}px,0)`;
 }
 function dragEnd(e){
   window.removeEventListener('pointermove',moveGhost);
-  ghost.style.display='none';
+  ghost.style.display='none';ghost.style.transform='translate3d(-9999px,-9999px,0)';
   if(!drag)return;
   drag.el.classList.remove('dragging-src');
   const under=document.elementFromPoint(e.clientX,e.clientY);
