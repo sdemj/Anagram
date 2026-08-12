@@ -185,11 +185,20 @@ button{font-family:'Jua',sans-serif;border:none;cursor:pointer;}
 .p-btn:active{transform:translateY(3px);}
 
 /* How to Play */
-.howto-box{max-width:720px;text-align:left;}
+.howto-box{max-width:720px;text-align:left;max-height:620px;overflow-y:auto;}
 .howto-box h2{text-align:center;color:#6E3550;}
 .howto-box h3{font-size:22px;color:#4A3A5E;margin:14px 0 4px;}
 .howto-box p,.howto-box li{font-size:19px;line-height:1.55;color:var(--brown);}
 .howto-box ul{padding-left:22px;}
+
+/* 학습 목표 */
+.learning-goal{background:linear-gradient(180deg,#FFF8EA,var(--cream));border:3px dashed var(--rose-gold-dk);
+  border-radius:18px;padding:14px 22px;margin:12px 0 4px;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6);}
+.learning-goal .lg-label{font-size:22px;color:#6E3550;text-align:center;margin-bottom:8px;}
+.howto-box .learning-goal ul{list-style:none;padding-left:0;margin:0;}
+.howto-box .learning-goal li{position:relative;padding-left:28px;margin:4px 0;font-size:18px;line-height:1.5;}
+.learning-goal li::before{content:'🔑';position:absolute;left:0;top:1px;font-size:15px;}
+.learning-goal b{color:#6E3550;}
 
 /* ── 엔딩 화면 ── */
 #screen-end{background:linear-gradient(180deg,#3E3560,#6B5D96 60%,var(--sky-3));justify-content:center;}
@@ -321,6 +330,14 @@ button{font-family:'Jua',sans-serif;border:none;cursor:pointer;}
   <div id="howto-overlay" class="overlay">
     <div class="popup howto-box">
       <h2>📖 How to Play</h2>
+      <div class="learning-goal">
+        <div class="lg-label">🎯 오늘의 학습 목표</div>
+        <ul>
+          <li>주제별 영어 단어와 <b>우리말 뜻</b>을 연결하여 이해할 수 있다.</li>
+          <li>흩어진 알파벳을 <b>알맞은 순서</b>로 배열하여 단어를 완성할 수 있다.</li>
+          <li>힌트를 활용해 스스로 <b>철자를 점검하며</b> 정확하게 익힐 수 있다.</li>
+        </ul>
+      </div>
       <h3>🎮 게임 방법</h3>
       <ul>
         <li>흩어진 글자 블록을 <b>드래그</b>해서 빈칸에 놓아 단어를 완성해요.</li>
@@ -363,7 +380,7 @@ button{font-family:'Jua',sans-serif;border:none;cursor:pointer;}
 
 <audio id="au-correct" src="correct.mp3" preload="auto"></audio>
 <audio id="au-wrong" src="wrong.mp3" preload="auto"></audio>
-<audio id="au-bgm" src="anagram background music.mp3" preload="auto" loop></audio>
+<audio id="au-bgm" src="anagram_background_music.mp3" preload="auto" loop></audio>
 
 <script>
 /* ══════════ 데이터 ══════════ */
