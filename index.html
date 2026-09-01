@@ -126,6 +126,49 @@ button:focus-visible,
   filter:drop-shadow(0 6px 10px rgba(74,47,27,.35));}
 .deco-char.bl{left:28px;bottom:24px;}
 .deco-char.br{right:28px;bottom:24px;}
+/* 주제 선택 화면 아래 양옆의 소품.
+   가운데 카드(폭 900~1300px)와 겹치지 않도록 화면 끝에 붙이고 크기를 작게 잡는다.
+   높이만 정하고 폭은 자동이라 소품마다 원래 비율이 유지된다.
+   무대 끝에 딱 붙지 않도록 대분류 칸 사이 간격(.major-grid 의 gap 16px)만큼만
+   안쪽·위쪽으로 띄웠다 (24 -> 40, 18 -> 34).
+   한 자리에 소품을 두 개 이상 놓을 수도 있어 묶음(div)으로 두고 가로로 세운다 */
+.deco-props{position:absolute;bottom:34px;z-index:6;pointer-events:none;user-select:none;
+  display:flex;align-items:flex-end;gap:10px;}
+.deco-props img{width:auto;opacity:.92;
+  filter:drop-shadow(0 6px 10px rgba(74,47,27,.35));}
+
+/* 소품 여덟 가지를 두 화면에 하나씩만 나눠 놓는다 (같은 그림을 두 번 쓰지 않는다).
+   한 자리에 큰 것 하나 + 작은 것 하나를 두고, 작은 쪽에 음수 마진을 줘서
+   책상 위에 포개 놓은 것처럼 보이게 한다.
+   큰 소품은 늘 바깥쪽(화면 끝)에, 작은 소품은 안쪽에 두어
+   가운데 격자·패널을 가리는 일이 없도록 했다 — 작은 쪽은 키가 낮아
+   격자(아래끝 y618)·패널(아래끝 y579)보다 아래에만 놓인다. */
+/* 대분류 네 가지는 10% 씩 키운 값 (120→132 / 58→64 / 60→66 / 110→121).
+   안쪽 두 개(블록·편지)는 격자 아래끝 y618 보다 아래에만 놓여야 해서 높이 68px 이 한계다 */
+.p-safe  {height:132px;}                        /* 대분류 오른쪽 : 금고 */
+.p-blocks{height:64px;  margin-left:-34px;}     /* 대분류 왼쪽 안쪽 : 알파벳 블록 */
+.p-env   {height:66px;  margin-right:-30px;}    /* 대분류 오른쪽 안쪽 : 밀랍 편지 */
+.p-cork  {height:121px;}                        /* 대분류 왼쪽 : 코르크 단서판 */
+.p-lamp  {height:237px;}                        /* 소분류 왼쪽 : 책상 램프 */
+/* 소분류 안쪽 두 자리. 어떤 소품이 오든 패널 아래끝(y579)보다 위로 올라가면 안 되고
+   바닥에서 34px 띄우므로 높이 107px 이 한계다. 여유를 두고 104px 로 잡았다.
+   자리 기준으로 이름을 붙여, 두 소품을 맞바꿔도 여백 값이 따라가지 않는다 */
+/* 왼쪽 안쪽 자리는 램프 갓 아래 빈 곳으로 당겨 넣는다.
+   램프 그림은 이 높이대에서 화면 x151 까지만 차 있다(실측) — x171 부터라 20px 떨어진다.
+   바닥선(y686)보다 10px 더 내려 놓아 그만큼 키를 키웠다.
+   패널 아래끝 y579 에 닿지 않으려면 이 자리에서 117px 이 한계라 114px 로 잡았다 */
+.p-in-l  {height:114px; margin-left:-78px; margin-bottom:-10px;}
+/* 오른쪽 안쪽 자리는 바깥쪽 소품(책)보다 앞에 놓이도록 한 겹 올린다 */
+.p-in-r  {height:104px; margin-right:-34px; position:relative; z-index:1;}
+.p-books {height:156px;}                        /*            책 + 화분 */
+
+/* 대분류 격자는 900px(x190~1090), 소분류 패널은 760px(x260~1020) 이라
+   양옆 여백이 다르다. 화면마다 바깥 여백을 따로 잡는다 */
+/* 대분류는 무대 끝에 딱 붙어 보여서, 바닥에서 띄운 만큼(34px) 좌우도 안쪽으로 넣었다 */
+#screen-major .deco-props.bl{left:34px;}
+#screen-major .deco-props.br{right:34px;}
+#screen-sub   .deco-props.bl{left:32px;}
+#screen-sub   .deco-props.br{right:20px;}
 /* 엔딩 화면 : 결과 상자 양옆에 선 전신 캐릭터 */
 .end-char{position:absolute;bottom:54px;z-index:9;pointer-events:none;
   filter:drop-shadow(0 8px 14px rgba(0,0,0,.4));}
@@ -141,8 +184,17 @@ button:focus-visible,
 /* ── 키트의 놋쇠 원형 아이콘 (이모지·글꼴아이콘 대체) ──
    모두 표시 크기의 2배로 만들어 둬서 무대가 확대돼도 흐릿해지지 않는다 */
 .kit-ico{height:28px;width:auto;vertical-align:-7px;}
-#btn-hint .kit-ico{height:30px;vertical-align:-8px;margin-right:4px;}
+#btn-hint .kit-ico{height:32px;vertical-align:-9px;margin-right:6px;}
 .badge .kit-ico{height:26px;vertical-align:-6px;margin-right:4px;}
+/* 확장 에셋 : 게임 버튼 안의 돋보기·열쇠·화살표 */
+.g-btn .kit-ico{height:30px;vertical-align:-8px;margin-right:6px;}
+/* 화살표는 가로로 길어서 높이를 낮게 잡아야 글자와 균형이 맞는다 */
+.kit-ico.arrow{height:20px;vertical-align:-3px;}
+.p-btn .kit-ico.arrow{margin:0 0 0 8px;}
+.nav-btn .kit-ico.arrow{margin:0 6px 0 0;}
+.flip{transform:scaleX(-1);}
+/* 뜻 힌트 줄 앞의 놋쇠 전구 배지 */
+#meaning-line .kit-ico{height:34px;vertical-align:-9px;margin-right:8px;}
 .cp-lock img{height:26px;width:auto;display:block;}
 .word-audio-btn img{height:22px;width:auto;}
 /* 엔딩 화면 자물쇠 */
@@ -424,7 +476,8 @@ button:focus-visible,
 .end-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
 .confetti{position:absolute;top:-20px;border-radius:3px;z-index:5;animation:fall linear forwards;}
 @keyframes fall{to{transform:translateY(780px) rotate(720deg);opacity:.9;}}
-.fw{position:absolute;font-size:34px;z-index:6;animation:fw 1.6s ease-out infinite;}
+/* 폭죽 그림. 폭이 인라인 스타일로 하나씩 정해지므로 여기서는 높이만 자동으로 둔다 */
+.fw{position:absolute;height:auto;z-index:6;pointer-events:none;animation:fw 1.6s ease-out infinite;}
 @keyframes fw{0%{transform:scale(.3);opacity:0}30%{opacity:1}100%{transform:scale(1.6);opacity:0}}
 
 /* ── 발음 듣기 버튼 (정답 팝업 · 복습 카드 공통) ── */
@@ -515,7 +568,15 @@ button:focus-visible,
       <div class="select-title">원하는 주제를 선택하세요</div>
       <div id="major-grid" class="major-grid"></div>
     </div>
-    <img class="deco-char bl" src="characters/ui/bear_curious.png" alt="" height="118">
+    <!-- 화면 아래 양옆에 놓는 탐정 사무소 소품 -->
+    <div class="deco-props bl">
+      <img class="p-cork" src="characters/ui/prop_cork.png" alt="" loading="lazy">
+      <img class="p-blocks" src="characters/ui/prop_blocks.png" alt="" loading="lazy">
+    </div>
+    <div class="deco-props br">
+      <img class="p-env" src="characters/ui/prop_envelope.png" alt="" loading="lazy">
+      <img class="p-safe" src="characters/ui/prop_safe.png" alt="" loading="lazy">
+    </div>
   </div>
 
   <!-- 소분류 -->
@@ -529,7 +590,15 @@ button:focus-visible,
         <button id="btn-game-start" disabled>Game Start</button>
       </div>
     </div>
-    <img class="deco-char br" src="characters/ui/rabbit_curious.png" alt="" height="128">
+    <!-- 왼쪽은 두 개 : 책상 램프가 펼쳐진 암호 노트를 비추는 모양새 -->
+    <div class="deco-props bl">
+      <img class="p-lamp" src="characters/ui/prop_lamp.png" alt="" loading="lazy">
+      <img class="p-in-l" src="characters/ui/prop_notebook.png" alt="" loading="lazy">
+    </div>
+    <div class="deco-props br">
+      <img class="p-in-r" src="characters/ui/prop_ink.png" alt="" loading="lazy">
+      <img class="p-books" src="characters/ui/prop_books.png" alt="" loading="lazy">
+    </div>
   </div>
 
   <!-- 게임 -->
@@ -542,7 +611,8 @@ button:focus-visible,
         <div id="cp-slots" class="cp-slots"></div>
         <span class="cp-lock" id="cp-lock"><img src="characters/ui/lock_small.png" alt=""></span>
       </div>
-      <div class="badge" id="score-badge">점수: 0</div>
+      <!-- 숫자만 span 으로 갈아 끼워서 앞의 훈장 그림이 지워지지 않게 한다 -->
+      <div class="badge" id="score-badge"><img class="kit-ico" src="characters/ui/medal.png" alt="">점수: <span id="score-val">0</span></div>
     </div>
     <div class="game-main">
       <div id="meaning-line"></div>
@@ -550,9 +620,9 @@ button:focus-visible,
       <div id="pool" class="pool"></div>
       <div id="hint-toast"></div>
       <div class="game-btns">
-        <button id="btn-hint" class="g-btn">Hint (5)</button>
-        <button id="btn-reset" class="g-btn">초기화</button>
-        <button id="btn-submit" class="g-btn" disabled>제출하기</button>
+        <button id="btn-hint" class="g-btn"><img class="kit-ico" src="characters/ui/magnifier.png" alt="">Hint (<span id="hint-left">5</span>)</button>
+        <button id="btn-reset" class="g-btn"><img class="kit-ico arrow flip" src="characters/ui/arrow.png" alt="">초기화</button>
+        <button id="btn-submit" class="g-btn" disabled><img class="kit-ico" src="characters/ui/key.png" alt="">제출하기</button>
       </div>
     </div>
     <div class="result-strip"><span class="rs-label">진행 결과</span><span id="result-chips" style="display:contents"></span></div>
@@ -561,11 +631,11 @@ button:focus-visible,
   <!-- 엔딩 -->
   <div id="screen-end" class="screen">
     <div id="end-fx"></div>
-    <img class="end-char left" src="characters/ui/bear_full.png" alt="">
-    <img class="end-char right" src="characters/ui/rabbit_full.png" alt="">
+    <img class="end-char left" src="characters/ui/bear_solved.png" alt="" loading="lazy">
+    <img class="end-char right" src="characters/ui/rabbit_key.png" alt="" loading="lazy">
     <div class="end-box">
       <!-- showEnd 가 잠긴/열린 자물쇠 그림으로 바꿔 끼운다 -->
-      <div id="end-lock"><img src="characters/ui/lock_big.png" alt=""></div>
+      <div id="end-lock"><img src="characters/ui/lock_big.png" alt="" loading="lazy"></div>
       <div class="end-sub" id="end-sub">SECRET CODE UNLOCKED!</div>
       <div class="end-title" id="end-title-txt">비밀 코드를 모두 풀었어요!</div>
       <div class="end-stats">
@@ -589,7 +659,7 @@ button:focus-visible,
       <div class="select-title" id="review-title">틀린 문제 모아보기</div>
       <div class="review-guide">단어 칸을 누르면 따라 쓰기 연습을 할 수 있어요</div>
       <div id="review-grid" class="review-grid"></div>
-      <button class="nav-btn" id="btn-review-back" style="margin-top:16px">결과로 돌아가기</button>
+      <button class="nav-btn" id="btn-review-back" style="margin-top:16px"><img class="kit-ico arrow flip" src="characters/ui/arrow.png" alt="">결과로 돌아가기</button>
     </div>
   </div>
 
@@ -597,8 +667,8 @@ button:focus-visible,
   <div id="howto-overlay" class="overlay">
     <div class="popup howto-box">
       <button type="button" class="popup-x" id="btn-howto-x" title="닫기" aria-label="닫기">✕</button>
-      <h2><img src="characters/ui/bear_thinking.png" alt="">How to Play</h2>
-      <img class="howto-divider" src="characters/ui/divider_star.png" alt="">
+      <h2><img src="characters/ui/bear_thinking.png" alt="" loading="lazy">How to Play</h2>
+      <img class="howto-divider" src="characters/ui/divider_star.png" alt="" loading="lazy">
       <div class="learning-goal">
         <div class="lg-label">오늘의 학습 목표</div>
         <div class="lg-text">
@@ -638,7 +708,7 @@ button:focus-visible,
   <div id="result-overlay" class="overlay">
     <div id="result-popup" class="popup">
       <!-- 채점 결과에 따라 JS 가 곰·토끼 그림으로 바꿔 끼운다 -->
-      <div class="p-icon" id="rp-icon"><img src="characters/ui/bear_happy.png" alt=""></div>
+      <div class="p-icon" id="rp-icon"><img src="characters/ui/bear_solved.png" alt=""></div>
       <h2 id="rp-title">정답이에요!</h2>
       <div class="p-word-line">
         <span class="p-word" id="rp-word"></span>
@@ -648,14 +718,14 @@ button:focus-visible,
       </div>
       <div class="p-mean" id="rp-mean"></div>
       <div class="p-point" id="rp-point"></div>
-      <button class="p-btn" id="btn-next">다음 문제</button>
+      <button class="p-btn" id="btn-next">다음 문제<img class="kit-ico arrow" src="characters/ui/arrow.png" alt=""></button>
     </div>
   </div>
 
   <!-- 정답은 아니지만 실제로 있는 다른 영단어를 만들었을 때 (채점하지 않고 그 문제를 다시 푼다) -->
   <div id="alt-overlay" class="overlay">
     <div class="popup alt-word">
-      <div class="p-icon"><img src="characters/ui/bear_thinking.png" alt=""></div>
+      <div class="p-icon"><img src="characters/ui/bear_writing.png" alt="" loading="lazy"></div>
       <h2>다른 단어를 만들었네요!</h2>
       <div class="p-word-line"><span class="p-word" id="alt-word"></span></div>
       <!-- 대괄호 안쪽 여백은 줄바꿈되지 않는 공백이라 뜻이 괄호에서 떨어지지 않는다 -->
@@ -667,7 +737,7 @@ button:focus-visible,
   <!-- 게임 도중에 홈·뒤로를 눌렀을 때 확인받는 팝업 -->
   <div id="leave-overlay" class="overlay">
     <div class="popup leave-box">
-      <div class="p-icon"><img src="characters/ui/bear_thinking.png" alt=""></div>
+      <div class="p-icon"><img src="characters/ui/bear_writing.png" alt="" loading="lazy"></div>
       <h2>게임을 종료할까요?</h2>
       <div class="p-ask">지금 나가면 풀던 문제가 사라져요.</div>
       <div class="p-btns">
@@ -680,7 +750,7 @@ button:focus-visible,
   <!-- 복습 화면에서 단어 카드를 누르면 열리는 타이핑 연습 팝업 -->
   <div id="practice-overlay" class="overlay">
     <div class="popup practice">
-      <div class="p-icon"><img id="pr-icon" src="characters/ui/bear_thinking.png" alt=""></div>
+      <div class="p-icon"><img id="pr-icon" src="characters/ui/bear_writing.png" alt="" loading="lazy"></div>
       <h2 id="pr-title">단어를 따라 써 볼까요?</h2>
       <div class="p-word-line">
         <span class="p-word" id="pr-word"></span>
@@ -1240,7 +1310,7 @@ function tierScore(w){const n=letterCount(w);return n<=4?5:(n<=6?7:10);}
 function updateHUD(){
   document.getElementById('q-badge').innerHTML=
     `<img class="kit-ico" src="characters/ui/dial.png" alt=""> 단서 ${Math.min(round+1,gameWords.length)} / ${gameWords.length}`;
-  document.getElementById('score-badge').textContent=`점수: ${score}`;
+  document.getElementById('score-val').textContent=score;   // 앞의 훈장 그림은 그대로 둔다
   updateCodeSlots();
 }
 
@@ -1274,7 +1344,7 @@ function loadQuestion(){
   poolTiles=sh;
   const m=document.getElementById('meaning-line');m.classList.remove('show');m.textContent='';
   document.getElementById('hint-toast').textContent='';
-  document.getElementById('btn-hint').textContent='Hint (5)';
+  document.getElementById('hint-left').textContent='5';   // 앞의 돋보기 그림은 그대로 둔다
   document.getElementById('btn-hint').disabled=false;
   updateHUD();renderBoard();
 }
@@ -1388,14 +1458,17 @@ document.getElementById('btn-hint').onclick=()=>{
   if(hintUsed>=5||submitted)return;
   playHintSound();   // 힌트 알림 소리 (효과음 끄기 버튼을 따른다)
   hintUsed++;
-  document.getElementById('btn-hint').textContent=`Hint (${5-hintUsed})`;
+  document.getElementById('hint-left').textContent=5-hintUsed;
   if(hintUsed>=5)document.getElementById('btn-hint').disabled=true;
   const toast=document.getElementById('hint-toast');
   toast.textContent=`Hint 사용! (이번 문제 -${hintUsed}점)`;
   const [en,ko]=gameWords[round];
   if(hintUsed===1){
     const m=document.getElementById('meaning-line');
-    m.textContent=`뜻: ${ko}`;m.classList.add('show');
+    // 앞에 놋쇠 전구 배지를 붙인다. 뜻은 텍스트 노드로 넣어야 따옴표가 든 뜻도 그대로 나온다
+    m.innerHTML='<img class="kit-ico" src="characters/ui/lightbulb.png" alt="">';
+    m.appendChild(document.createTextNode('뜻: '+ko));
+    m.classList.add('show');
   } else if(hintUsed<=4){
     renderBoard();
     const wi=firstWrongIndex();if(wi<0)return;
@@ -1473,7 +1546,7 @@ document.getElementById('btn-submit').onclick=()=>{
     // 곰과 토끼가 번갈아 축하해 준다.
     // 주소는 변수에 먼저 담아서 넣는다. 태그 문자열 안에 이름을 조립해 끼워 넣으면
     // 점검 도구가 조립 자리를 파일 이름으로 읽어 '없는 파일' 로 알린다
-    const cheer=(round%2===0)?'bear_happy':'rabbit_happy';
+    const cheer=(round%2===0)?'bear_solved':'rabbit_key';
     const cheerSrc='characters/ui/'+cheer+'.png';
     const cheerImg=document.createElement('img');
     cheerImg.src=cheerSrc;
@@ -1486,7 +1559,7 @@ document.getElementById('btn-submit').onclick=()=>{
     sfx('au-wrong');
     streak=0;wrongList.push(gameWords[round]);
     pp.className='popup wrong';
-    document.getElementById('rp-icon').innerHTML='<img src="characters/ui/rabbit_thinking.png" alt="">';
+    document.getElementById('rp-icon').innerHTML='<img src="characters/ui/rabbit_safe.png" alt="">';
     document.getElementById('rp-title').textContent='아쉬워요! 정답은...';
     // 아래 버튼이 이미 '다음 문제'로 안내하므로 따로 문구를 두지 않는다
     document.getElementById('rp-point').textContent='';
@@ -1545,10 +1618,15 @@ function fireworks(){
     c.style.background=colors[i%colors.length];
     c.style.animationDuration=(2+Math.random()*2.5)+'s';
     c.style.animationDelay=(Math.random()*1.5)+'s';fx.appendChild(c);}
-  const emo=['🎆','✨','🎇','💫'];
-  for(let i=0;i<8;i++){const s=document.createElement('div');s.className='fw';s.textContent=emo[i%emo.length];
+  // 폭죽은 이모지 대신 그림으로 (기기마다 모양이 달라지지 않는다).
+  // 크기를 조금씩 다르게 줘야 여러 개가 같은 판박이로 보이지 않는다
+  for(let i=0;i<8;i++){
+    const s=document.createElement('img');
+    s.className='fw';s.src='characters/ui/firework.png';s.alt='';
     s.style.left=(5+Math.random()*90)+'%';s.style.top=(10+Math.random()*60)+'%';
-    s.style.animationDelay=(Math.random()*1.4)+'s';fx.appendChild(s);}
+    s.style.width=(70+Math.random()*60).toFixed(0)+'px';
+    s.style.animationDelay=(Math.random()*1.4)+'s';
+    fx.appendChild(s);}
 }
 // 다시 플레이할 때도 '뒤로'를 누르면 주제 선택으로 돌아가도록 기록을 맞춰준다
 document.getElementById('btn-replay').onclick=()=>{startGame();histBack=['screen-sub'];histFwd=[];rawShow('screen-game');};
@@ -1594,7 +1672,7 @@ const PRAISE=['참 잘했어요!','완벽해요!','멋져요!','정확해요!','
 
 function openPractice(en,ko){
   prWord=en;prSolved=false;
-  document.getElementById('pr-icon').src='characters/ui/bear_thinking.png';
+  document.getElementById('pr-icon').src='characters/ui/bear_writing.png';
   document.getElementById('pr-title').textContent='단어를 따라 써 볼까요?';
   document.getElementById('pr-word').textContent=en;
   document.getElementById('pr-mean').textContent=ko;
@@ -1620,7 +1698,7 @@ function practiceConfirm(){
     prSolved=true;
     sfx('au-correct');
     // 곰과 토끼가 번갈아 축하해 주는 대신, 여기서는 늘 활짝 웃는 얼굴로
-    document.getElementById('pr-icon').src='characters/ui/bear_happy.png';
+    document.getElementById('pr-icon').src='characters/ui/bear_solved.png';
     document.getElementById('pr-title').textContent='맞았어요!';
     msg.textContent=PRAISE[Math.floor(Math.random()*PRAISE.length)];
     msg.className='p-point ok';
