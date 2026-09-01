@@ -462,6 +462,12 @@ button:focus-visible,
 /* 전체 문제 복습일 때는 오답 표시(빨강) 대신 중립적인 나무색 테두리 */
 #review-grid.mode-all .review-card{border-color:var(--wood-dk);}
 
+/* ── 게임 종료 확인 팝업 ──
+   되돌릴 수 없는 행동이라 오답과 같은 색(--no)으로 테두리를 잡아 한 번 더 눈에 띄게 한다 */
+.popup.leave-box{border-color:var(--no);box-shadow:inset 0 0 0 3px #F0CFCF,0 14px 40px rgba(74,47,27,.45);}
+.popup.leave-box h2{color:#A65A52;}
+.popup.leave-box .p-ask{margin:4px 0 2px;}
+
 /* ── 복습 화면의 타이핑 연습 팝업 ── */
 .popup.practice{border-color:var(--wood-dk);box-shadow:inset 0 0 0 3px var(--cream-dk),0 14px 40px rgba(74,47,27,.45);}
 .popup.practice h2{color:#7A5A2E;}
@@ -658,6 +664,19 @@ button:focus-visible,
     </div>
   </div>
 
+  <!-- 게임 도중에 홈·뒤로를 눌렀을 때 확인받는 팝업 -->
+  <div id="leave-overlay" class="overlay">
+    <div class="popup leave-box">
+      <div class="p-icon"><img src="characters/ui/bear_thinking.png" alt=""></div>
+      <h2>게임을 종료할까요?</h2>
+      <div class="p-ask">지금 나가면 풀던 문제가 사라져요.</div>
+      <div class="p-btns">
+        <button class="p-btn" id="btn-leave-ok">확인</button>
+        <button class="p-btn quit" id="btn-leave-cancel">계속하기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 복습 화면에서 단어 카드를 누르면 열리는 타이핑 연습 팝업 -->
   <div id="practice-overlay" class="overlay">
     <div class="popup practice">
@@ -839,11 +858,30 @@ function goHome(){histBack=[];histFwd=[];rawShow('screen-title');}
    이 게임은 화면 순서가 고정된 게 아니라 지나온 기록(histBack/histFwd)으로
    뒤로·앞으로를 움직이므로, 기존 기록 방식을 그대로 쓴다. */
 // 화면을 옮길 때 재생 중이던 단어 음성은 끊고 배경음악을 원래대로 되돌린다
+/* ── 게임 도중 나가기 확인 ──
+   문제를 푸는 중에 홈·뒤로를 누르면 곧바로 나가지 않고 한 번 물어본다.
+   게임 화면이 아닐 때는 물어볼 것이 없으므로 그대로 이동한다. */
+let pendingLeave=null;
+function askLeaveGame(go){
+  if(curScreen()!=='screen-game'){go();return;}
+  pendingLeave=go;
+  document.getElementById('leave-overlay').classList.add('show');
+}
+function confirmLeave(){
+  document.getElementById('leave-overlay').classList.remove('show');
+  const go=pendingLeave;pendingLeave=null;
+  if(go)go();
+}
+function cancelLeave(){
+  document.getElementById('leave-overlay').classList.remove('show');
+  pendingLeave=null;
+}
+
 function navHome(){
   if(curScreen()==='screen-title')return;   // 첫 화면에서는 갈 곳이 없음
-  stopVoice();goHome();
+  askLeaveGame(()=>{stopVoice();goHome();});
 }
-function navBack(){stopVoice();goBack();}
+function navBack(){askLeaveGame(()=>{stopVoice();goBack();});}
 function navForward(){stopVoice();goFwd();}
 
 // 화면이 바뀔 때마다(어떤 경로로 바뀌었든) 홈/뒤로/앞으로 버튼의 활성·비활성을 갱신한다
@@ -1606,9 +1644,13 @@ function closePractice(){
 
 document.getElementById('btn-pr-confirm').onclick=practiceConfirm;
 document.getElementById('btn-pr-quit').onclick=closePractice;
-// Esc 로도 연습 팝업을 닫을 수 있게 한다
+document.getElementById('btn-leave-ok').onclick=confirmLeave;
+document.getElementById('btn-leave-cancel').onclick=cancelLeave;
+// Esc : 연습 팝업은 닫고, 종료 확인 팝업은 '계속하기'(나가지 않음)로 처리한다
 document.addEventListener('keydown',e=>{
-  if(e.key==='Escape'&&document.getElementById('practice-overlay').classList.contains('show'))closePractice();
+  if(e.key!=='Escape')return;
+  if(document.getElementById('practice-overlay').classList.contains('show'))closePractice();
+  else if(document.getElementById('leave-overlay').classList.contains('show'))cancelLeave();
 });
 
 /* ══════════ Enter 로 팝업의 확인 버튼 누르기 ══════════
@@ -1616,6 +1658,7 @@ document.addEventListener('keydown',e=>{
    팝업마다 누를 버튼이 하나뿐이라 Enter 가 무엇을 누를지 헷갈릴 일이 없다. */
 function primaryPopupButton(){
   const open=id=>document.getElementById(id).classList.contains('show');
+  if(open('leave-overlay'))   return document.getElementById('btn-leave-ok');    // 게임 종료 확인
   if(open('practice-overlay'))return document.getElementById('btn-pr-confirm');  // 확인 / 닫기
   if(open('alt-overlay'))     return document.getElementById('btn-alt-retry');   // 다시 해볼래요
   if(open('result-overlay'))  return document.getElementById('btn-next');        // 다음 문제 / 결과 보기
