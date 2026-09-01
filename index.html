@@ -144,7 +144,6 @@ button:focus-visible,
 #btn-hint .kit-ico{height:30px;vertical-align:-8px;margin-right:4px;}
 .badge .kit-ico{height:26px;vertical-align:-6px;margin-right:4px;}
 .cp-lock img{height:26px;width:auto;display:block;}
-.chip .kit-ico{height:20px;vertical-align:-4px;margin-right:5px;}
 .word-audio-btn img{height:22px;width:auto;}
 /* 엔딩 화면 자물쇠 */
 #end-lock img{height:95px;width:auto;display:block;margin:0 auto;}
@@ -217,9 +216,15 @@ button:focus-visible,
 .code-progress .cp-label{font-family:var(--font-body);font-size:15px;color:var(--brown-lt);white-space:nowrap;}
 /* 적어둔 그대로 'Code Progress' 로 보이도록 대문자 변환은 쓰지 않는다 */
 .code-progress .cp-label{letter-spacing:1px;}
-.cp-slots{flex:1;display:flex;justify-content:center;gap:7px;}
-/* 금고 다이얼 창 : 어두운 안쪽에 놋쇠 테두리 */
-.cp-cell{width:34px;height:36px;flex-shrink:0;border-radius:6px;
+/* 칸이 'Code Progress' 글자·자물쇠 그림에 닿지 않도록 좌우에 여백을 남겨 둔다 */
+.cp-slots{flex:1;display:flex;justify-content:center;gap:7px;padding:0 8px;}
+/* 금고 다이얼 창 : 어두운 안쪽에 놋쇠 테두리.
+   ── 가로폭 ──
+   flex 로 남는 공간을 열 칸이 똑같이 나눠 가지되, max-width 로 46px 에서 멈춘다.
+   (띠 안쪽에 열 칸 몫으로 한 칸당 53px 쯤 남지만 '조금씩만' 늘리는 게 목적이라 46px 로 끊었다)
+   폭이 예상보다 좁은 경우에도 min-width 34px 아래로는 줄지 않으므로,
+   양옆 글자와 자물쇠를 밀어내는 일은 생기지 않는다 */
+.cp-cell{flex:1 1 34px;min-width:34px;max-width:46px;height:36px;border-radius:7px;
   border:2px solid var(--rose-gold-dk);background:#4A2F1B;color:#9C8871;
   font-family:var(--font-display);font-size:22px;
   display:flex;align-items:center;justify-content:center;
@@ -239,10 +244,14 @@ button:focus-visible,
   padding:6px 26px;border:2px dashed var(--wood-dk);display:none;}
 #meaning-line.show{display:block;}
 
-/* 빈칸 슬롯 & 글자 블록 (나무 블록) */
-.slots,.pool{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;max-width:1150px;}
+/* 빈칸 슬롯 & 글자 블록 (나무 블록)
+   ── 2026-09 : 끌어다 놓는 판 전체를 20% 키웠다.
+      칸 72→86.4 / 80→96, 글자 42→50, 긴 단어용 축소본 58→70 / 66→79 / 32→38.
+      가장 긴 'police officer'(13글자+공백)도 한 줄에 들어가도록
+      칸 사이 간격은 14→17 로만 올리고 최대 폭을 무대 여백 끝(1212px)까지 넓혔다 */
+.slots,.pool{display:flex;gap:17px;justify-content:center;flex-wrap:wrap;max-width:1212px;}
 /* 빈칸은 금고 판에 파인 자리처럼 : 안쪽 그림자로 살짝 들어가 보이게 한다 */
-.slot{width:72px;height:80px;border-radius:12px;border:3px dashed rgba(92,64,48,.5);
+.slot{width:86px;height:96px;border-radius:14px;border:3px dashed rgba(92,64,48,.5);
   background:rgba(250,241,223,.35);position:relative;
   box-shadow:inset 0 3px 6px rgba(74,47,27,.16),inset 0 -1px 0 rgba(255,255,255,.5);}
 /* 미리 채워진 글자 칸은 파인 느낌이 필요 없다 */
@@ -252,14 +261,14 @@ button:focus-visible,
    좌우 여백도 음수 마진으로 당겨 글자에 붙인다. 색은 타일 글자와 같은 갈색 */
 .slot.fixed-char{border-style:solid;background:transparent;border-color:transparent;
   display:flex;align-items:center;justify-content:center;font-family:var(--font-display);
-  font-size:40px;color:var(--brown);margin:0 -5px;}
+  font-size:48px;color:var(--brown);margin:0 -6px;}
 .slot.hint-glow{border-color:var(--gold);border-style:solid;box-shadow:0 0 0 5px rgba(245,213,138,.55),0 0 18px var(--gold);animation:glowPulse 1s infinite;}
 @keyframes glowPulse{0%,100%{box-shadow:0 0 0 5px rgba(245,213,138,.45)}50%{box-shadow:0 0 4px 8px rgba(245,213,138,.8)}}
-.pool{min-height:96px;align-items:center;}
+.pool{min-height:115px;align-items:center;}
 /* 글자 블록 : 키트의 나무 블록. 글자마다 색이 정해져 옮겨도 같은 색을 유지한다 */
-.tile{width:72px;height:80px;border-radius:12px;cursor:grab;user-select:none;touch-action:none;
+.tile{width:86px;height:96px;border-radius:14px;cursor:grab;user-select:none;touch-action:none;
   display:flex;align-items:center;justify-content:center;
-  font-family:var(--font-display);font-size:42px;color:var(--kit-ink);
+  font-family:var(--font-display);font-size:50px;color:var(--kit-ink);
   background:linear-gradient(180deg,var(--block-face),#E6D2AC);
   border:3px solid var(--wood-dk);
   box-shadow:inset 0 0 0 2px rgba(255,255,255,.45),0 6px 0 var(--wood-dk),0 8px 6px rgba(74,47,27,.22);
@@ -275,7 +284,7 @@ button:focus-visible,
 .tile.dragging-src{opacity:.35;}
 #drag-ghost{position:fixed;left:0;top:0;z-index:9999;pointer-events:none;display:none;
   will-change:transform;transform:translate3d(-9999px,-9999px,0);}
-.pool-hole{width:72px;height:80px;border-radius:12px;background:rgba(0,0,0,.08);border:2px dashed rgba(92,64,48,.25);}
+.pool-hole{width:86px;height:96px;border-radius:14px;background:rgba(0,0,0,.08);border:2px dashed rgba(92,64,48,.25);}
 
 .game-btns{display:flex;gap:16px;}
 .g-btn{font-size:22px;padding:12px 28px;border-radius:16px;color:#fff;box-shadow:0 6px 0 rgba(92,64,48,.28);
@@ -291,13 +300,24 @@ button:focus-visible,
    수사 기록을 붙여 놓는 서류철처럼 : 왼쪽 라벨을 세로선으로 구분한다 */
 .result-strip{width:100%;background:linear-gradient(180deg,#FCF3E2,var(--parchment));
   border:3px solid var(--wood-dk);border-radius:16px;
-  padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;min-height:54px;align-items:center;
+  padding:8px 16px;display:flex;gap:8px;flex-wrap:wrap;min-height:54px;align-items:center;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -3px 6px rgba(74,47,27,.10),var(--shadow);}
 .result-strip .rs-label{font-size:17px;color:var(--brown-lt);margin-right:10px;padding-right:12px;
   border-right:2px solid rgba(169,114,47,.35);letter-spacing:.5px;}
-.chip{padding:5px 14px;border-radius:14px;font-size:17px;font-family:var(--font-display);border:2px solid;}
-.chip.ok{background:var(--ok-bg);color:#2E6B41;border-color:var(--ok);}
-.chip.no{background:var(--no-bg);color:#9E3B3B;border-color:var(--no);}
+/* 아이콘 없이 색깔로만 맞고 틀림을 구분한다. 아이콘(20px + 여백 5px)이 빠진 만큼
+   글자를 17 → 19px 로 키웠다.
+   ── 19px 로 정한 근거 ──
+   띠 안쪽 폭은 1212 - 여백 32 - 테두리 6 = 1174px.
+   열 칸은 어차피 두 줄로 나뉘고, '진행 결과' 이름표가 붙는 첫 줄이 가장 빡빡하다.
+   이름표 자리 약 109px + 칸 사이 간격 8×5 = 40px 을 빼면 다섯 칸에 1025px,
+   한 칸 205px 에서 여백 28 과 테두리 4 를 빼면 글자에 173px.
+   이 글꼴은 영문 한 글자가 약 0.62em 이므로 가장 긴 단어(police officer = 14글자) 기준
+   173 / (14 × 0.62) = 19.9px 까지 가능하다. 여유를 두고 19px 로 잡았다. */
+.chip{padding:4px 14px;border-radius:14px;font-size:19px;line-height:1.2;
+  font-family:var(--font-display);border:2px solid;white-space:nowrap;}
+/* 색만으로 구분하므로 바탕을 원래보다 또렷한 톤으로 채운다 */
+.chip.ok{background:#DCE9D5;color:#2E6B41;border-color:var(--ok);}
+.chip.no{background:#F7D9D9;color:#9E3B3B;border-color:var(--no);}
 
 /* 흔들림 */
 @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-10px)}40%,80%{transform:translateX(10px)}}
@@ -326,8 +346,16 @@ button:focus-visible,
 .popup.correct h2,.popup.correct .p-word{color:#4A6B45;}
 .popup.wrong{border-color:var(--no);box-shadow:inset 0 0 0 3px #F0CFCF,0 14px 40px rgba(74,47,27,.45);}
 .popup.wrong h2{color:#A65A52;} .popup.wrong .p-word{color:#4A6B45;}
+/* 정답은 아니지만 실제로 있는 다른 영단어를 만들었을 때.
+   틀렸다고 나무라는 자리가 아니므로 오답의 붉은색 대신 Hint 와 같은 놋쇠빛으로 둔다 */
+.popup.alt-word{border-color:var(--gold);box-shadow:inset 0 0 0 3px #F6E3B4,0 14px 40px rgba(74,47,27,.45);}
+.popup.alt-word h2{color:#8A6A1E;}
+.popup.alt-word .p-word{color:#6B4E17;}
+.popup .p-ask{font-family:var(--font-body);font-size:24px;line-height:1.5;margin:10px 0 2px;}
+.popup .p-ask b{color:#A65A52;}
 .p-btn{margin-top:14px;font-size:22px;padding:12px 40px;border-radius:16px;color:#fff;
   background:linear-gradient(180deg,#8FB088,#7FA27A);border:3px solid #5E7F59;box-shadow:0 5px 0 rgba(92,64,48,.28);}
+.p-btn.retry{background:linear-gradient(180deg,var(--gold),#E5B95A);border-color:#C09246;color:#6B4E17;}
 .p-btn:active{transform:translateY(3px);}
 
 /* How to Play */
@@ -401,6 +429,31 @@ button:focus-visible,
   white-space:nowrap;}
 .rv-bottom{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;}
 .review-card .rv-ko{font-family:var(--font-body);font-size:21px;color:var(--brown-lt);white-space:nowrap;}
+/* 카드 전체가 타이핑 연습 팝업을 여는 버튼이다 (button 요소라 글꼴을 되돌려 준다) */
+.review-card{cursor:pointer;font-family:var(--font-body);transition:transform .15s,filter .15s;}
+.review-card:hover{transform:translateY(-3px);filter:brightness(1.03);}
+.review-card:active{transform:translateY(2px);}
+/* 카드마다 안내를 붙이면 칸이 넘치므로, 화면 위에 한 번만 적어 둔다 */
+.review-guide{font-family:var(--font-body);font-size:19px;color:var(--brown-lt);margin:-18px 0 8px;text-align:center;}
+/* 전체 문제 복습일 때는 오답 표시(빨강) 대신 중립적인 나무색 테두리 */
+#review-grid.mode-all .review-card{border-color:var(--wood-dk);}
+
+/* ── 복습 화면의 타이핑 연습 팝업 ── */
+.popup.practice{border-color:var(--wood-dk);box-shadow:inset 0 0 0 3px var(--cream-dk),0 14px 40px rgba(74,47,27,.45);}
+.popup.practice h2{color:#7A5A2E;}
+.popup.practice .p-word{color:#4A2F1B;}
+#pr-input{display:block;width:78%;margin:14px auto 2px;padding:11px 16px;font-size:22px;
+  font-family:var(--font-body);text-align:center;border-radius:14px;border:3px solid var(--wood-dk);
+  background:var(--cream);color:var(--brown);}
+#pr-input:focus{outline:none;border-color:var(--gold);box-shadow:0 0 0 4px rgba(226,193,107,.45);}
+#pr-msg{min-height:34px;}
+#pr-msg.ok{color:#4A6B45;}
+#pr-msg.no{color:#A65A52;}
+.p-btns{display:flex;gap:14px;justify-content:center;}
+.p-btn.quit{background:linear-gradient(180deg,var(--gold),#E5B95A);border-color:#C09246;color:#6B4E17;}
+/* 틀렸을 때 입력칸을 좌우로 흔들어 알려 준다 */
+@keyframes inputShake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-8px)}40%,80%{transform:translateX(8px)}}
+#pr-input.shake{animation:inputShake .4s;}
 
 /* ── 무대 바깥 여백에 깔리는 탐정 소품 (돋보기·자물쇠·열쇠·물음표·메모·발자국) ──
    #stage 보다 먼저 그려지도록 DOM 에서 앞에 두고 z-index 를 0 으로 둔다.
@@ -491,7 +544,9 @@ button:focus-visible,
       </div>
       <div class="end-btns">
         <button class="nav-btn" id="btn-replay">🎮 다시 플레이하기</button>
-        <button class="nav-btn" id="btn-review" style="display:none">📖 틀린 문제 복습하기</button>
+        <!-- 복습 버튼 두 개를 나란히. 틀린 문제가 없으면 오른쪽 것만 빠진다 -->
+        <button class="nav-btn" id="btn-review-all">📖 전체 문제 복습</button>
+        <button class="nav-btn" id="btn-review" style="display:none">📔 틀린 문제 모아보기</button>
         <button class="nav-btn" id="btn-end-home">🏠 처음으로</button>
       </div>
     </div>
@@ -500,7 +555,8 @@ button:focus-visible,
   <!-- 틀린 문제 복습 -->
   <div id="screen-review" class="screen">
     <div class="select-wrap">
-      <div class="select-title">📖 틀린 문제 복습</div>
+      <div class="select-title" id="review-title">📔 틀린 문제 모아보기</div>
+      <div class="review-guide">단어 칸을 누르면 따라 쓰기 연습을 할 수 있어요 ✏️</div>
       <div id="review-grid" class="review-grid"></div>
       <button class="nav-btn" id="btn-review-back" style="margin-top:16px">↩️ 결과로 돌아가기</button>
     </div>
@@ -559,6 +615,41 @@ button:focus-visible,
     </div>
   </div>
 
+  <!-- 정답은 아니지만 실제로 있는 다른 영단어를 만들었을 때 (채점하지 않고 그 문제를 다시 푼다) -->
+  <div id="alt-overlay" class="overlay">
+    <div class="popup alt-word">
+      <div class="p-icon"><img src="characters/ui/bear_thinking.png" alt=""></div>
+      <h2>다른 단어를 만들었네요!</h2>
+      <div class="p-word-line"><span class="p-word" id="alt-word"></span></div>
+      <!-- 대괄호 안쪽 여백은 줄바꿈되지 않는 공백이라 뜻이 괄호에서 떨어지지 않는다 -->
+      <div class="p-ask">그 단어도 있지만, 뜻이 [&nbsp;<b id="alt-mean"></b>&nbsp;]인 단어를 찾아볼까요?</div>
+      <button class="p-btn retry" id="btn-alt-retry">🔄 다시 해볼래요</button>
+    </div>
+  </div>
+
+  <!-- 복습 화면에서 단어 카드를 누르면 열리는 타이핑 연습 팝업 -->
+  <div id="practice-overlay" class="overlay">
+    <div class="popup practice">
+      <div class="p-icon"><img id="pr-icon" src="characters/ui/bear_thinking.png" alt=""></div>
+      <h2 id="pr-title">단어를 따라 써 볼까요?</h2>
+      <div class="p-word-line">
+        <span class="p-word" id="pr-word"></span>
+        <button type="button" class="word-audio-btn" id="pr-audio-btn" title="발음 듣기">
+          <i class="fa-solid fa-volume-high"></i>
+        </button>
+      </div>
+      <div class="p-mean" id="pr-mean"></div>
+      <input type="text" id="pr-input" placeholder="단어 입력"
+             autocapitalize="none" autocorrect="off" autocomplete="off" spellcheck="false">
+      <div class="p-point" id="pr-msg"></div>
+      <div class="p-btns">
+        <button class="p-btn" id="btn-pr-confirm">확인</button>
+        <!-- 철자가 끝내 생각나지 않아도 팝업에 갇히지 않도록 빠져나갈 길을 둔다 -->
+        <button class="p-btn quit" id="btn-pr-quit">그만하기</button>
+      </div>
+    </div>
+  </div>
+
   <!-- 커스텀 툴팁 -->
   <div id="tooltip"></div>
 </div>
@@ -609,6 +700,28 @@ button:focus-visible,
 <script>
 /* ══════════ 데이터 ══════════ */
 const WORD_DATA = {"숫자·색깔·시간\nNumber, Color&Time": {"Number": [["one", "하나"], ["two", "둘"], ["three", "셋"], ["four", "넷"], ["five", "다섯"], ["six", "여섯"], ["seven", "일곱"], ["eight", "여덟"], ["nine", "아홉"], ["ten", "열"], ["eleven", "열하나"], ["twelve", "열둘"], ["thirteen", "열셋"], ["fourteen", "열넷"], ["fifteen", "열다섯"]], "Color": [["white", "흰색"], ["black", "검정"], ["red", "빨강"], ["orange", "주황"], ["yellow", "노랑"], ["green", "초록"], ["blue", "파랑"], ["purple", "보라"], ["brown", "갈색"], ["gray", "회색"], ["pink", "분홍"], ["color", "색깔"], ["rainbow", "무지개"]], "Time&Date": [["day", "날"], ["week", "주"], ["month", "월"], ["year", "년"], ["morning", "아침"], ["afternoon", "오후"], ["evening", "저녁"], ["night", "밤"], ["time", "시간"], ["today", "오늘"], ["tomorrow", "내일"], ["yesterday", "어제"], ["weekend", "주말"], ["noon", "정오"], ["season", "계절"]]}, "사람과 동물\nPeople&Animal": {"Body": [["eye", "눈"], ["nose", "코"], ["ear", "귀"], ["mouth", "입"], ["tooth", "이"], ["face", "얼굴"], ["neck", "목"], ["hair", "머리카락"], ["head", "머리"], ["foot", "발"], ["finger", "손가락"], ["leg", "다리"], ["arm", "팔"], ["skin", "피부"], ["hand", "손"]], "Family&People": [["mom", "엄마"], ["dad", "아빠"], ["grandma", "할머니"], ["grandpa", "할아버지"], ["sister", "언니·누나"], ["brother", "형·오빠"], ["parents", "부모님"], ["uncle", "삼촌"], ["aunt", "이모·고모"], ["cousin", "사촌"], ["baby", "아기"], ["child", "아이"], ["boy", "남자아이"], ["girl", "여자아이"], ["man", "남자"]], "Animal": [["bear", "곰"], ["bird", "새"], ["cat", "고양이"], ["cow", "소"], ["dog", "개"], ["duck", "오리"], ["elephant", "코끼리"], ["fish", "물고기"], ["fox", "여우"], ["frog", "개구리"], ["giraffe", "기린"], ["horse", "말"], ["kangaroo", "캥거루"], ["lion", "사자"], ["monkey", "원숭이"]]}, "취미·과목·직업\nHobby, Subject&Job": {"Sports&Hobby": [["soccer", "축구"], ["baseball", "야구"], ["basketball", "농구"], ["badminton", "배드민턴"], ["tennis", "테니스"], ["table tennis", "탁구"], ["taekwondo", "태권도"], ["swimming", "수영"], ["skating", "스케이트"], ["skiing", "스키"], ["camping", "캠핑"], ["hiking", "등산"], ["drawing", "그림 그리기"], ["painting", "색칠하기"], ["cooking", "요리"]], "Subject&Class": [["English", "영어"], ["Korean", "국어"], ["Math", "수학"], ["Science", "과학"], ["History", "역사"], ["Art", "미술"], ["Music", "음악"], ["P.E.", "체육"], ["subject", "과목"], ["class", "수업"], ["lesson", "단원"], ["homework", "숙제"], ["test", "시험"], ["vacation", "방학"], ["grade", "학년"]], "Job": [["cook", "요리사"], ["doctor", "의사"], ["pilot", "조종사"], ["singer", "가수"], ["painter", "화가"], ["nurse", "간호사"], ["teacher", "선생님"], ["actor", "배우"], ["scientist", "과학자"], ["photographer", "사진사"], ["firefighter", "소방관"], ["police officer", "경찰관"], ["writer", "작가"], ["dentist", "치과의사"], ["zookeeper", "사육사"]]}, "음식과 음료\nFood&Drink": {"Fruit&Vegetable": [["apple", "사과"], ["banana", "바나나"], ["grape", "포도"], ["lemon", "레몬"], ["kiwi", "키위"], ["watermelon", "수박"], ["strawberry", "딸기"], ["peach", "복숭아"], ["pear", "배(과일)"], ["melon", "멜론"], ["potato", "감자"], ["tomato", "토마토"], ["carrot", "당근"], ["corn", "옥수수"], ["onion", "양파"]], "Meal&Snack": [["bread", "빵"], ["rice", "밥"], ["cake", "케이크"], ["cheese", "치즈"], ["chicken", "치킨"], ["chocolate", "초콜릿"], ["cookie", "쿠키"], ["hamburger", "햄버거"], ["pizza", "피자"], ["salad", "샐러드"], ["sandwich", "샌드위치"], ["spaghetti", "스파게티"], ["steak", "스테이크"], ["beef", "소고기"], ["egg", "달걀"]], "Drink&Taste": [["water", "물"], ["milk", "우유"], ["juice", "주스"], ["lemonade", "레모네이드"], ["tea", "차"], ["coffee", "커피"], ["sweet", "단"], ["salty", "짠"], ["sour", "신"], ["spicy", "매운"], ["bitter", "쓴"], ["sugar", "설탕"], ["salt", "소금"], ["taste", "맛"], ["delicious", "맛있는"]]}, "국가와 자연\nCountry, Nature&Weather": {"Country": [["Korea", "한국"], ["the U.S.", "미국"], ["the U.K.", "영국"], ["Japan", "일본"], ["China", "중국"], ["Vietnam", "베트남"], ["Thailand", "태국"], ["India", "인도"], ["Italy", "이탈리아"], ["France", "프랑스"], ["Spain", "스페인"], ["Germany", "독일"], ["Sweden", "스웨덴"], ["Canada", "캐나다"], ["Mexico", "멕시코"]], "Nature": [["earth", "지구"], ["flower", "꽃"], ["tree", "나무"], ["leaves", "나뭇잎"], ["forest", "숲"], ["mountain", "산"], ["river", "강"], ["sea", "바다"], ["beach", "해변"], ["lake", "호수"], ["grass", "풀"], ["sky", "하늘"], ["star", "별"], ["sun", "해"], ["moon", "달"]], "Weather": [["weather", "날씨"], ["cloud", "구름"], ["cloudy", "흐린"], ["sunny", "맑은"], ["raining", "비 오는"], ["snowing", "눈 오는"], ["windy", "바람 부는"], ["foggy", "안개 낀"], ["lightning", "번개"], ["storm", "폭풍"], ["snowman", "눈사람"], ["ice", "얼음"], ["snow", "눈(날씨)"], ["rain", "비"], ["wind", "바람"]]}, "장소·교통·방향\nPlace, Transportation&Direction": {"Place": [["bank", "은행"], ["bakery", "빵집"], ["bookstore", "서점"], ["market", "시장"], ["restaurant", "식당"], ["store", "가게"], ["hospital", "병원"], ["library", "도서관"], ["park", "공원"], ["school", "학교"], ["museum", "박물관"], ["airport", "공항"], ["church", "교회"], ["city hall", "시청"], ["police station", "경찰서"]], "Transportation": [["bike", "자전거"], ["bus", "버스"], ["car", "자동차"], ["taxi", "택시"], ["truck", "트럭"], ["train", "기차"], ["subway", "지하철"], ["airplane", "비행기"], ["flight", "항공편"], ["police car", "경찰차"], ["ship", "배(탈것)"], ["boat", "보트"], ["fire truck", "소방차"]], "Direction&Position": [["down", "아래로"], ["left", "왼쪽"], ["right", "오른쪽"], ["straight", "곧게"], ["front", "앞"], ["back", "뒤"], ["behind", "뒤에"], ["under", "아래에"], ["over", "위로"], ["top", "맨 위"], ["bottom", "맨 아래"], ["middle", "가운데"], ["near", "가까이"], ["next to", "옆에"], ["between", "사이에"]]}, "물건\nThings": {"School Supplies": [["textbook", "교과서"], ["book", "책"], ["notebook", "공책"], ["pencil", "연필"], ["pencil case", "필통"], ["eraser", "지우개"], ["ruler", "자"], ["scissors", "가위"], ["glue stick", "딱풀"], ["crayon", "크레용"], ["board", "칠판"], ["map", "지도"], ["paper", "종이"], ["computer", "컴퓨터"], ["bag", "가방"]], "Household": [["door", "문"], ["window", "창문"], ["bed", "침대"], ["chair", "의자"], ["desk", "책상"], ["table", "식탁"], ["sofa", "소파"], ["clock", "시계"], ["lamp", "램프"], ["fan", "선풍기"], ["mirror", "거울"], ["sink", "싱크대"], ["stair", "계단"], ["towel", "수건"], ["toothbrush", "칫솔"]], "Clothing": [["cap", "야구모자"], ["hat", "모자"], ["coat", "코트"], ["jacket", "재킷"], ["shirt", "셔츠"], ["T-shirt", "티셔츠"], ["sweater", "스웨터"], ["dress", "원피스"], ["skirt", "치마"], ["pants", "바지"], ["hairpin", "머리핀"], ["socks", "양말"], ["shoes", "신발"], ["sunglasses", "선글라스"], ["gloves", "장갑"]]}, "동작\nAction": {"Daily Action": [["get up", "일어나다"], ["wash", "씻다"], ["brush", "닦다"], ["eat", "먹다"], ["drink", "마시다"], ["sleep", "자다"], ["open", "열다"], ["close", "닫다"], ["sit", "앉다"], ["stand", "서다"], ["read", "읽다"], ["write", "쓰다"], ["study", "공부하다"], ["clean", "청소하다"], ["make", "만들다"]], "Move&Play": [["go", "가다"], ["come", "오다"], ["run", "달리다"], ["walk", "걷다"], ["jump", "뛰다"], ["fly", "날다"], ["ride", "타다"], ["play", "놀다"], ["dance", "춤추다"], ["move", "움직이다"], ["enter", "들어가다"], ["catch", "잡다"], ["kick", "차다"], ["throw", "던지다"], ["climb", "오르다"]], "Talk&Feel": [["talk", "이야기하다"], ["say", "말하다"], ["tell", "알려주다"], ["ask", "묻다"], ["answer", "대답하다"], ["call", "부르다"], ["listen", "듣다"], ["sing", "노래하다"], ["meet", "만나다"], ["visit", "방문하다"], ["give", "주다"], ["thank", "고마워하다"], ["welcome", "환영하다"], ["like", "좋아하다"], ["want", "원하다"]]}, "특징과 감정\nCharacter&Feeling": {"Look": [["big", "큰"], ["small", "작은"], ["large", "커다란"], ["tall", "키가 큰"], ["short", "짧은·키가 작은"], ["long", "긴"], ["slim", "날씬한"], ["fat", "뚱뚱한"], ["thin", "얇은"], ["heavy", "무거운"], ["light", "가벼운"], ["strong", "힘이 센"], ["weak", "약한"], ["straight", "곧은"], ["curly", "곱슬한"]], "Character": [["good", "착한"], ["bad", "나쁜"], ["kind", "친절한"], ["nice", "좋은"], ["brave", "용감한"], ["funny", "재미있는"], ["smart", "똑똑한"], ["quiet", "조용한"], ["honest", "정직한"], ["lazy", "게으른"], ["cool", "멋진"], ["shy", "수줍음많은"]], "Feeling": [["happy", "행복한"], ["sad", "슬픈"], ["angry", "화난"], ["glad", "기쁜"], ["excited", "신난"], ["afraid", "두려운"], ["tired", "피곤한"], ["sleepy", "졸린"], ["hungry", "배고픈"], ["thirsty", "목마른"], ["sick", "아픈"], ["busy", "바쁜"], ["surprised", "놀란"]]}};
+/* ── 정답이 아니어도 '실제로 있는 영단어'인 경우 ──
+   빈칸을 다 채운 답은 언제나 정답 글자를 뒤섞은 것이므로,
+   여기 적어 둘 것은 각 정답 단어의 애너그램(같은 글자로 만들 수 있는 다른 단어)뿐이다.
+   인터넷 사전을 부르지 않고도 판정할 수 있도록 미리 구해서 넣어 두었다.
+   공개 영단어 목록(dwyl/english-words)에서 뽑은 뒤 자주 쓰는 2만 단어와 겹치는 것만 남기고,
+   고유명사(Gary·Iran)·약어·영어가 아닌 철자는 손으로 걸러냈다.
+   키는 정답 단어(소문자), 값은 그 글자로 만들 수 있는 다른 영단어들이다. */
+const ALT_WORDS = {
+  arm:"mar ram", art:"rat tar", aunt:"tuna", bad:"dab", bear:"bare", board:"broad",
+  bread:"beard", bus:"sub", busy:"buys", car:"arc", cat:"act", china:"chain",
+  clean:"lance", cloud:"could", coat:"taco", dad:"add", dog:"god", door:"odor",
+  ear:"are era", earth:"heart", eat:"ate tea", face:"cafe", fat:"aft", finger:"fringe",
+  forest:"foster", grape:"pager", green:"genre", horse:"shore", lake:"leak", lamp:"palm",
+  large:"regal", left:"felt", leg:"gel", lemon:"melon", listen:"silent", map:"amp",
+  melon:"lemon", moon:"mono", near:"earn", night:"thing", nose:"ones", open:"nope",
+  over:"rove", peach:"cheap", pear:"reap", quiet:"quite", read:"dare dear", ride:"dire",
+  run:"urn", sad:"ads", salt:"last", ship:"hips", sing:"sign", singer:"resign",
+  sink:"inks skin", sister:"resist", sit:"its", skin:"inks sink", small:"malls",
+  snow:"owns", sour:"ours", spain:"pains", star:"arts rats", steak:"skate stake takes",
+  study:"dusty", taste:"state", tea:"ate eat", ten:"net", thin:"hint", three:"ether there",
+  throw:"worth", time:"item", tired:"tried", top:"opt pot", two:"tow", weak:"wake"
+};
 const MAJOR_META = {
   "숫자·색깔·시간":"🔢","사람과 동물":"🐻","취미·과목·직업":"⚽","음식과 음료":"🍎",
   "국가와 자연":"🌍","장소·교통·방향":"🚌","물건":"🎒","동작":"🏃","특징과 감정":"😊"
@@ -1089,7 +1202,8 @@ function renderBoard(){
   const sl=document.getElementById('slots'), pl=document.getElementById('pool');
   sl.innerHTML='';pl.innerHTML='';
   const big=answer.length>10; // 긴 단어는 블록 축소
-  const size=big?{w:58,h:66,f:32}:{w:72,h:80,f:42};
+  // 위 CSS 와 같은 값 (20% 키운 뒤). 여기 값이 실제로 칸에 적용된다
+  const size=big?{w:70,h:79,f:38}:{w:86,h:96,f:50};
   answer.split('').forEach((ch,i)=>{
     const d=document.createElement('div');
     d.style.width=size.w+'px';d.style.height=size.h+'px';
@@ -1231,12 +1345,36 @@ document.getElementById('btn-hint').onclick=()=>{
 document.getElementById('btn-reset').onclick=()=>{if(!submitted)loadQuestion();};
 
 /* ══════════ 제출 & 채점 ══════════ */
+/* 만든 답이 정답은 아니지만 실제로 있는 영단어이면 그 단어를, 아니면 빈 문자열을 준다.
+   'Spain' 의 글자로 만든 답은 대문자 S가 섞여 'painS' 가 되므로, 화면에는 raw 대신
+   여기서 돌려주는 사전형(pains)을 보여준다.
+   'the U.S.' 처럼 마침표·띄어쓰기가 든 정답은 애초에 표에 없으므로 자연히 걸러진다 */
+function matchOtherWord(guess){
+  const a=answer.toLowerCase(), g=guess.toLowerCase();
+  if(g===a)return '';
+  return (' '+(ALT_WORDS[a]||'')+' ').indexOf(' '+g+' ')>-1?g:'';
+}
+// 채점하지 않고 안내만 한 뒤, 그 문제를 처음 상태로 되돌린다
+function showAltWord(guess,ko){
+  playHintSound();
+  document.getElementById('alt-word').textContent=guess;
+  document.getElementById('alt-mean').textContent=ko;
+  document.getElementById('alt-overlay').classList.add('show');
+}
+document.getElementById('btn-alt-retry').onclick=()=>{
+  document.getElementById('alt-overlay').classList.remove('show');
+  // 같은 문제를 다시 : 힌트 횟수·뜻 공개·글자판이 모두 이 문제 처음 상태로 돌아간다
+  loadQuestion();
+};
 document.getElementById('btn-submit').onclick=()=>{
   if(submitted||!isFull())return;
-  submitted=true;
   const [en,ko]=gameWords[round];
   const guess=answer.split('').map((ch,i)=>/[A-Za-z]/.test(ch)?slots[i]:ch).join('');
   const ok=guess===answer;
+  // 다른 영단어를 만든 경우엔 오답으로 치지 않는다 (점수·연속정답·복습목록 모두 그대로)
+  const alt=ok?'':matchOtherWord(guess);
+  if(alt){showAltWord(alt,ko);return;}
+  submitted=true;
   const ov=document.getElementById('result-overlay');
   const pp=document.getElementById('result-popup');
   document.getElementById('rp-word').textContent=en;
@@ -1275,7 +1413,8 @@ document.getElementById('btn-submit').onclick=()=>{
   results.push({word:en,ok});
   const chip=document.createElement('span');
   chip.className='chip '+(ok?'ok':'no');
-  chip.innerHTML=`<img class='kit-ico' src='characters/ui/icon_${ok?'correct':'wrong'}.png' alt=''>${en}`;
+  // 맞고 틀림은 색으로만 구분한다. 단어는 텍스트로 넣어야 마침표가 든 단어도 그대로 나온다
+  chip.textContent=en;
   document.getElementById('result-chips').appendChild(chip);
   updateHUD();
   setTimeout(()=>ov.classList.add('show'),ok?250:600);
@@ -1327,23 +1466,125 @@ function fireworks(){
 // 다시 플레이할 때도 '뒤로'를 누르면 주제 선택으로 돌아가도록 기록을 맞춰준다
 document.getElementById('btn-replay').onclick=()=>{startGame();histBack=['screen-sub'];histFwd=[];rawShow('screen-game');};
 document.getElementById('btn-end-home').onclick=goHome;
-document.getElementById('btn-review').onclick=()=>{
-  const g=document.getElementById('review-grid');g.innerHTML='';
+
+/* 복습 화면 : 'all' 이면 이번 판에 나온 문제 전부, 'wrong' 이면 틀린 문제만.
+   카드를 누르면 그 단어를 따라 쳐 보는 연습 팝업이 열린다 */
+function showReview(mode){
+  const isAll=mode==='all';
+  const list=isAll?gameWords:wrongList;
+  const g=document.getElementById('review-grid');
+  g.innerHTML='';
+  g.classList.toggle('mode-all',isAll);
+  document.getElementById('review-title').textContent=
+    isAll?'📖 전체 문제 복습':'📔 틀린 문제 모아보기';
   // 한 줄에 4칸. 4개 이하(=한 줄)면 가운데, 5개부터는 왼쪽부터 채워 줄 시작이 맞도록 한다
-  g.style.justifyContent=wrongList.length<=4?'center':'flex-start';
-  wrongList.forEach(([en,ko])=>{
-    const c=document.createElement('div');c.className='review-card';
+  g.style.justifyContent=list.length<=4?'center':'flex-start';
+  list.forEach(([en,ko])=>{
+    const c=document.createElement('button');
+    c.type='button';c.className='review-card';
     c.innerHTML=`<div class="rv-en">${en}</div>
       <div class="rv-bottom">
         <span class="rv-ko">${ko}</span>
         <button type="button" class="word-audio-btn" title="발음 듣기"><i class="fa-solid fa-volume-high"></i></button>
       </div>`;
+    c.onclick=()=>openPractice(en,ko);
     const b=c.querySelector('.word-audio-btn');
-    b.onclick=()=>playWordAudio(en,b);   // 단어에 띄어쓰기가 있어 속성 대신 여기서 연결
+    // 단어에 띄어쓰기가 있어 속성 대신 여기서 연결.
+    // 발음 버튼은 카드 안에 있으므로 눌렀을 때 연습 팝업까지 열리지 않도록 막는다
+    b.onclick=(e)=>{e.stopPropagation();playWordAudio(en,b);};
     g.appendChild(c);});
   rawShow('screen-review');
-};
+}
+document.getElementById('btn-review').onclick=()=>showReview('wrong');
+document.getElementById('btn-review-all').onclick=()=>showReview('all');
 document.getElementById('btn-review-back').onclick=()=>rawShow('screen-end');
+
+/* ══════════ 복습 화면의 타이핑 연습 팝업 ══════════
+   철자를 맞게 치면 칭찬을 보여주고, 확인을 한 번 더 누르면 닫힌다.
+   다른 단어를 눌러 몇 번이든 다시 연습할 수 있다. */
+let prWord='', prSolved=false;
+const PRAISE=['참 잘했어요!','완벽해요!','멋져요!','정확해요!','아주 잘했어요!'];
+
+function openPractice(en,ko){
+  prWord=en;prSolved=false;
+  document.getElementById('pr-icon').src='characters/ui/bear_thinking.png';
+  document.getElementById('pr-title').textContent='단어를 따라 써 볼까요?';
+  document.getElementById('pr-word').textContent=en;
+  document.getElementById('pr-mean').textContent=ko;
+  const msg=document.getElementById('pr-msg');msg.textContent='';msg.className='p-point';
+  const input=document.getElementById('pr-input');
+  input.value='';input.style.display='block';
+  document.getElementById('btn-pr-confirm').textContent='확인';
+  document.getElementById('btn-pr-quit').style.display='';
+  // 문제마다 단어가 바뀌므로 열 때마다 발음 버튼을 다시 연결한다
+  const ab=document.getElementById('pr-audio-btn');
+  ab.classList.remove('playing');
+  ab.onclick=()=>playWordAudio(en,ab);
+  document.getElementById('practice-overlay').classList.add('show');
+  input.focus();
+}
+
+function practiceConfirm(){
+  // 이미 맞힌 뒤라면 이 버튼은 '닫기' 역할을 한다
+  if(prSolved){closePractice();return;}
+  const input=document.getElementById('pr-input');
+  const msg=document.getElementById('pr-msg');
+  if(input.value.trim().toLowerCase()===prWord.trim().toLowerCase()){
+    prSolved=true;
+    sfx('au-correct');
+    // 곰과 토끼가 번갈아 축하해 주는 대신, 여기서는 늘 활짝 웃는 얼굴로
+    document.getElementById('pr-icon').src='characters/ui/bear_happy.png';
+    document.getElementById('pr-title').textContent='맞았어요!';
+    msg.textContent=PRAISE[Math.floor(Math.random()*PRAISE.length)];
+    msg.className='p-point ok';
+    input.style.display='none';
+    document.getElementById('btn-pr-quit').style.display='none';
+  } else {
+    sfx('au-wrong');
+    msg.textContent='철자를 다시 확인해보세요!';
+    msg.className='p-point no';
+    input.classList.remove('shake');
+    void input.offsetWidth;   // 애니메이션을 다시 태우려면 클래스를 뗀 뒤 한 프레임 쉬어야 한다
+    input.classList.add('shake');
+    input.select();input.focus();
+  }
+}
+
+function closePractice(){
+  document.getElementById('practice-overlay').classList.remove('show');
+  prWord='';prSolved=false;
+}
+
+document.getElementById('btn-pr-confirm').onclick=practiceConfirm;
+document.getElementById('btn-pr-quit').onclick=closePractice;
+// Esc 로도 연습 팝업을 닫을 수 있게 한다
+document.addEventListener('keydown',e=>{
+  if(e.key==='Escape'&&document.getElementById('practice-overlay').classList.contains('show'))closePractice();
+});
+
+/* ══════════ Enter 로 팝업의 확인 버튼 누르기 ══════════
+   지금 열려 있는 팝업에서 '지금 눌러야 할 버튼' 하나를 찾아 준다.
+   팝업마다 누를 버튼이 하나뿐이라 Enter 가 무엇을 누를지 헷갈릴 일이 없다. */
+function primaryPopupButton(){
+  const open=id=>document.getElementById(id).classList.contains('show');
+  if(open('practice-overlay'))return document.getElementById('btn-pr-confirm');  // 확인 / 닫기
+  if(open('alt-overlay'))     return document.getElementById('btn-alt-retry');   // 다시 해볼래요
+  if(open('result-overlay'))  return document.getElementById('btn-next');        // 다음 문제 / 결과 보기
+  if(open('howto-overlay'))   return document.getElementById('btn-howto-close');
+  return null;
+}
+document.addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  // 한글 입력기가 글자를 조합하는 중이면 그 Enter 는 조합을 끝내는 것이다
+  if(e.isComposing||e.keyCode===229)return;
+  // 이미 버튼에 초점이 가 있으면 브라우저가 알아서 눌러 준다 (여기서 또 누르면 두 번 눌린다)
+  const el=document.activeElement;
+  if(el&&(el.tagName==='BUTTON'||el.tagName==='A'))return;
+  const btn=primaryPopupButton();
+  if(!btn||btn.disabled)return;
+  e.preventDefault();
+  btn.click();
+});
 </script>
 </body>
 </html>
