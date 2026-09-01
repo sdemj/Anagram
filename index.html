@@ -7,11 +7,15 @@
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
 <title>Anagram Game - Secret Code Challenge</title>
+<!-- 상단 네비게이션 아이콘 (FontAwesome 6) — 폴더 안에 받아두어 인터넷 없이도 나온다 -->
+<link rel="stylesheet" href="fontawesome/css/all.min.css">
 <!-- 폰트: 학교안심 PosterB(굵은 제목용) + BoardmarkerR(얇은 본문용).
-     hakgyoansim-fonts.css 안에 폰트가 통째로 들어 있어 인터넷 없이도 그대로 나온다. -->
-<link href="hakgyoansim-fonts.css" rel="stylesheet">
-<!-- 상단 네비게이션 아이콘 (FontAwesome 6) — fa-solid, fa-regular 두 스타일 모두 사용 -->
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+     파일 안에 폰트가 통째로 들어 있어(2.7MB) 인터넷 없이도 그대로 나온다.
+     다만 용량이 커서 이걸 기다리느라 첫 화면이 늦게 뜨므로,
+     media="print" 로 걸어 두었다가 다 받으면 화면에 적용한다(느린 와이파이 대비).
+     받는 동안에는 기본 글꼴로 먼저 보이고, 준비되면 학교안심체로 바뀐다. -->
+<link href="hakgyoansim-fonts.css" rel="stylesheet" media="print" onload="this.media='all'">
+<noscript><link href="hakgyoansim-fonts.css" rel="stylesheet"></noscript>
 <style>
 /* ══════════ DESIGN KIT : Secret Code Challenge ══════════
    탐정 사무소 컨셉 — 놋쇠 액자 / 어두운 호두나무 벽 / 오래된 서류(파치먼트) /
@@ -56,13 +60,6 @@ b,strong{font-family:var(--font-display);font-weight:normal;}
 #stage::after{content:'';position:absolute;inset:0;border-radius:18px;pointer-events:none;z-index:50;
   border:10px solid var(--rose-gold);
   box-shadow:inset 0 0 0 3px var(--rose-gold-lt), inset 0 0 0 6px var(--rose-gold-dk);}
-/* 키트의 네 귀퉁이 별 장식 */
-.corner-star{position:absolute;z-index:51;pointer-events:none;font-size:34px;line-height:1;
-  color:var(--rose-gold);text-shadow:0 1px 0 var(--rose-gold-lt),0 2px 3px rgba(74,47,27,.35);}
-.corner-star.tl{top:-4px;left:-4px;}
-.corner-star.tr{top:-4px;right:-4px;}
-.corner-star.bl{bottom:-4px;left:-4px;}
-.corner-star.br{bottom:-4px;right:-4px;}
 
 .screen{position:absolute;inset:0;display:none;flex-direction:column;align-items:center;}
 .screen.active{display:flex;}
@@ -105,15 +102,52 @@ button:focus-visible,
 }
 
 /* ── 타이틀 화면 ── */
-#screen-title{background:url('10.png') center/cover no-repeat;}
-.title-bottom{position:absolute;left:0;right:0;bottom:34px;display:flex;justify-content:center;gap:28px;z-index:30;}
-.title-btn{font-size:26px;padding:16px 44px;border-radius:20px;color:#fff;
-  border:3px solid rgba(255,255,255,.55);box-shadow:0 8px 0 rgba(92,64,48,.3);transition:transform .12s;}
-.title-btn:hover{transform:translateY(-3px);}
-.title-btn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(92,64,48,.3);}
-/* 키트 기준 : Game Start = 초록, How to Play = 로즈 */
-#btn-start{background:linear-gradient(180deg,#8FB088,var(--mint));color:#FDF6E8;border-color:#5E7F59;}
-#btn-howto{background:linear-gradient(180deg,#E0AEB2,var(--rose-gold));color:#5B2A2E;border-color:var(--rose-gold-dk);}
+/* 타이틀 배경 : 2.7MB PNG 를 354KB JPEG 으로 다시 저장한 것 (10.png -> title.jpg) */
+#screen-title{background:url('title.jpg') center/cover no-repeat;}
+.title-bottom{position:absolute;left:0;right:0;bottom:34px;display:flex;justify-content:center;gap:34px;z-index:30;}
+/* 타이틀 버튼 : 글자가 없는 빈 명판 그림 위에 우리 폰트로 글씨를 얹는다.
+   그림 비율 260x80 을 그대로 키운 값(299x92)을 써서 명판이 찌그러지지 않게 한다 */
+.title-btn{position:relative;width:299px;height:92px;border:none;padding:0;
+  background:none no-repeat center/100% 100%;
+  display:flex;align-items:center;justify-content:center;
+  filter:drop-shadow(0 6px 8px rgba(74,47,27,.45));transition:transform .12s,filter .12s;}
+.title-btn.plate-green{background-image:url('characters/ui/plate_green.png');}
+.title-btn.plate-pink{background-image:url('characters/ui/plate_pink.png');}
+/* 명판 안쪽 오목한 부분에 글씨가 놓이도록 살짝 위로 올린다 */
+.title-btn span{font-family:var(--font-display);font-size:31px;letter-spacing:.5px;
+  color:#FBF1DE;text-shadow:0 2px 3px rgba(48,30,18,.6);transform:translateY(-2px);}
+.title-btn:hover{transform:translateY(-3px);filter:drop-shadow(0 9px 10px rgba(74,47,27,.5));}
+.title-btn:active{transform:translateY(2px);filter:drop-shadow(0 3px 5px rgba(74,47,27,.45));}
+
+
+/* ── 키트 캐릭터 (곰·토끼 탐정) ──
+   화면 구석에 서 있는 장식용. 클릭을 가로채지 않도록 pointer-events 를 끈다 */
+.deco-char{position:absolute;z-index:6;pointer-events:none;user-select:none;
+  filter:drop-shadow(0 6px 10px rgba(74,47,27,.35));}
+.deco-char.bl{left:28px;bottom:24px;}
+.deco-char.br{right:28px;bottom:24px;}
+/* 엔딩 화면 : 결과 상자 양옆에 선 전신 캐릭터 */
+.end-char{position:absolute;bottom:54px;z-index:9;pointer-events:none;
+  filter:drop-shadow(0 8px 14px rgba(0,0,0,.4));}
+.end-char.left{left:46px;height:236px;}
+.end-char.right{right:46px;height:226px;}
+/* 정답·오답 팝업의 표정 캐릭터 (이모지 대신) */
+.popup .p-icon img{display:block;margin:0 auto;height:112px;width:auto;}
+/* How to Play 모달 제목 옆 캐릭터 */
+.howto-box h2 img{height:52px;width:auto;vertical-align:-14px;margin-right:8px;}
+/* 제목 아래 별 구분선 */
+.howto-divider{display:block;margin:2px auto 6px;width:300px;height:auto;}
+
+/* ── 키트의 놋쇠 원형 아이콘 (이모지·글꼴아이콘 대체) ──
+   모두 표시 크기의 2배로 만들어 둬서 무대가 확대돼도 흐릿해지지 않는다 */
+.kit-ico{height:28px;width:auto;vertical-align:-7px;}
+#btn-hint .kit-ico{height:30px;vertical-align:-8px;margin-right:4px;}
+.badge .kit-ico{height:26px;vertical-align:-6px;margin-right:4px;}
+.cp-lock img{height:26px;width:auto;display:block;}
+.chip .kit-ico{height:20px;vertical-align:-4px;margin-right:5px;}
+.word-audio-btn img{height:22px;width:auto;}
+/* 엔딩 화면 자물쇠 */
+#end-lock img{height:95px;width:auto;display:block;margin:0 auto;}
 
 /* ── 선택 화면 공통 ── */
 /* 위쪽 내비 버튼(처음으로/뒤로/앞으로/How to Play)과 겹치지 않도록 제목·버튼을 아래로 내린다 */
@@ -159,14 +193,27 @@ button:focus-visible,
   box-shadow:0 8px 18px rgba(0,0,0,.35);pointer-events:none;}
 #tooltip .tt-title{color:var(--gold);font-size:17px;margin-bottom:4px;display:block;}
 
-/* ── 게임 화면 ── */
-#screen-game{padding:76px 34px 20px;}
+/* ── 게임 화면 ──
+   그림을 얹지 않고 '재질'만으로 탐정 사무소 분위기를 낸다.
+   ① 사건 서류의 옅은 괘선  ② 책상 나무결  ③ 왼쪽 위에서 드는 램프빛
+   모두 아주 옅어서 글자판을 읽는 데 방해가 되지 않는다 */
+#screen-game{padding:76px 34px 20px;
+  background:
+    repeating-linear-gradient(0deg, rgba(74,47,27,.030) 0 1px, transparent 1px 27px),
+    repeating-linear-gradient(90deg, rgba(74,47,27,.018) 0 1px, transparent 1px 61px),
+    radial-gradient(ellipse 62% 70% at 10% 2%, rgba(255,253,246,.42), transparent 66%);}
 .game-top{width:100%;display:flex;align-items:center;gap:18px;margin-top:6px;z-index:5;}
-.badge{background:var(--parchment);border:3px solid var(--wood-dk);border-radius:16px;padding:8px 18px;
-  font-family:var(--font-display);font-size:20px;box-shadow:var(--shadow);white-space:nowrap;}
+/* 배지·진행바는 놋쇠 명판처럼 : 위쪽에 얇은 빛줄, 아래쪽에 옅은 그늘을 안쪽으로 넣어
+   납작한 색면이 아니라 두께가 있는 판으로 보이게 한다 */
+.badge{background:linear-gradient(180deg,#FCF3E2,var(--parchment));
+  border:3px solid var(--wood-dk);border-radius:16px;padding:8px 18px;
+  font-family:var(--font-display);font-size:20px;white-space:nowrap;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -3px 6px rgba(74,47,27,.10),var(--shadow);}
 /* Code Progress : 비밀번호를 한 자리씩 알아내는 느낌의 칸 (10.png 모티프) */
-.code-progress{flex:1;display:flex;align-items:center;gap:10px;background:var(--parchment);
-  border:3px solid var(--wood-dk);border-radius:16px;padding:8px 16px;box-shadow:var(--shadow);}
+.code-progress{flex:1;display:flex;align-items:center;gap:10px;
+  background:linear-gradient(180deg,#FCF3E2,var(--parchment));
+  border:3px solid var(--wood-dk);border-radius:16px;padding:8px 16px;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -3px 6px rgba(74,47,27,.10),var(--shadow);}
 .code-progress .cp-label{font-family:var(--font-body);font-size:15px;color:var(--brown-lt);white-space:nowrap;}
 /* 적어둔 그대로 'Code Progress' 로 보이도록 대문자 변환은 쓰지 않는다 */
 .code-progress .cp-label{letter-spacing:1px;}
@@ -194,8 +241,12 @@ button:focus-visible,
 
 /* 빈칸 슬롯 & 글자 블록 (나무 블록) */
 .slots,.pool{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;max-width:1150px;}
+/* 빈칸은 금고 판에 파인 자리처럼 : 안쪽 그림자로 살짝 들어가 보이게 한다 */
 .slot{width:72px;height:80px;border-radius:12px;border:3px dashed rgba(92,64,48,.5);
-  background:rgba(250,241,223,.35);position:relative;}
+  background:rgba(250,241,223,.35);position:relative;
+  box-shadow:inset 0 3px 6px rgba(74,47,27,.16),inset 0 -1px 0 rgba(255,255,255,.5);}
+/* 미리 채워진 글자 칸은 파인 느낌이 필요 없다 */
+.slot.fixed-char{box-shadow:none;}
 /* 마침표·하이픈·공백처럼 미리 채워진 글자.
    빈칸과 같은 폭이면 'the U.S.' 가 뚝뚝 떨어져 보이므로 폭은 renderBoard 에서 좁히고,
    좌우 여백도 음수 마진으로 당겨 글자에 붙인다. 색은 타일 글자와 같은 갈색 */
@@ -236,10 +287,14 @@ button:focus-visible,
 #btn-submit:disabled{filter:grayscale(.8);opacity:.5;cursor:not-allowed;}
 #hint-toast{min-height:26px;font-family:var(--font-body);font-size:19px;color:#6B4E17;}
 
-/* 하단 진행 결과 (정답 초록 / 오답 빨강) */
-.result-strip{width:100%;background:var(--parchment);border:3px solid var(--wood-dk);border-radius:16px;
-  padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;box-shadow:var(--shadow);min-height:54px;align-items:center;}
-.result-strip .rs-label{font-size:17px;color:var(--brown-lt);margin-right:6px;}
+/* 하단 진행 결과 (정답 초록 / 오답 빨강)
+   수사 기록을 붙여 놓는 서류철처럼 : 왼쪽 라벨을 세로선으로 구분한다 */
+.result-strip{width:100%;background:linear-gradient(180deg,#FCF3E2,var(--parchment));
+  border:3px solid var(--wood-dk);border-radius:16px;
+  padding:10px 16px;display:flex;gap:8px;flex-wrap:wrap;min-height:54px;align-items:center;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.85),inset 0 -3px 6px rgba(74,47,27,.10),var(--shadow);}
+.result-strip .rs-label{font-size:17px;color:var(--brown-lt);margin-right:10px;padding-right:12px;
+  border-right:2px solid rgba(169,114,47,.35);letter-spacing:.5px;}
 .chip{padding:5px 14px;border-radius:14px;font-size:17px;font-family:var(--font-display);border:2px solid;}
 .chip.ok{background:var(--ok-bg);color:#2E6B41;border-color:var(--ok);}
 .chip.no{background:var(--no-bg);color:#9E3B3B;border-color:var(--no);}
@@ -276,8 +331,11 @@ button:focus-visible,
 .p-btn:active{transform:translateY(3px);}
 
 /* How to Play */
-/* keep-all 로 낱말이 안 끊기면 줄이 길어지므로, 설명 팝업을 넓혀 줄 수를 줄인다 */
-.howto-box{max-width:940px;text-align:left;max-height:650px;overflow-y:auto;}
+/* 설명이 길어 세로로 넘치던 것을 두 단 배치로 바꿔 한 화면에 담는다 (스크롤 없음) */
+.howto-box{max-width:1120px;text-align:left;max-height:672px;padding:26px 40px;}
+.howto-cols{columns:2;column-gap:38px;margin-top:4px;}
+.howto-cols h3{break-after:avoid;margin-top:0;}
+.howto-cols ul{break-inside:avoid;margin-bottom:12px;}
 .howto-box h2{text-align:center;color:#A65A52;}
 .howto-box h3{font-family:var(--font-display);font-size:22px;color:#4A2F1B;margin:14px 0 4px;}
 .howto-box p,.howto-box li{font-family:var(--font-body);font-size:19px;line-height:1.55;color:var(--brown);}
@@ -332,13 +390,17 @@ button:focus-visible,
 /* 이 화면은 위쪽에 버튼이 없으므로 여백을 줄여 카드 3줄이 다 들어오게 한다 */
 #screen-review .select-wrap{padding-top:92px;}
 /* 한 줄에 4칸. 4개까지(=한 줄)는 가운데, 5개부터는 왼쪽부터 채워 줄이 맞도록 (JS에서 전환) */
-.review-grid{display:flex;gap:18px;flex-wrap:wrap;justify-content:center;
-  width:100%;max-width:1000px;margin-top:10px;overflow-y:auto;max-height:436px;padding:10px 0;}
-.review-card{width:236px;flex:0 0 auto;background:var(--parchment);border:3px solid var(--no);
-  border-radius:18px;padding:14px 16px;text-align:center;box-shadow:var(--shadow);}
-.review-card .rv-en{font-family:var(--font-display);font-size:28px;color:#4A2F1B;letter-spacing:1px;}
+/* 10개를 다 틀려도 스크롤 없이 한 화면에 들어가도록 4칸 x 3줄로 맞춘 값 */
+.review-grid{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;
+  width:100%;max-width:1120px;margin-top:8px;padding:6px 0;}
+.review-card{width:264px;flex:0 0 auto;background:var(--parchment);border:3px solid var(--no);
+  border-radius:18px;padding:12px 14px;text-align:center;box-shadow:var(--shadow);}
+/* 가장 긴 단어가 'police officer'(14자). 칸 안쪽 226px 에 한 줄로 들어가고,
+   혹시 모를 줄바꿈을 nowrap 으로 막는다 */
+.review-card .rv-en{font-family:var(--font-display);font-size:26px;color:#4A2F1B;letter-spacing:0;
+  white-space:nowrap;}
 .rv-bottom{display:flex;align-items:center;justify-content:center;gap:8px;margin-top:6px;}
-.review-card .rv-ko{font-family:var(--font-body);font-size:21px;color:var(--brown-lt);}
+.review-card .rv-ko{font-family:var(--font-body);font-size:21px;color:var(--brown-lt);white-space:nowrap;}
 
 /* ── 무대 바깥 여백에 깔리는 탐정 소품 (돋보기·자물쇠·열쇠·물음표·메모·발자국) ──
    #stage 보다 먼저 그려지도록 DOM 에서 앞에 두고 z-index 를 0 으로 둔다.
@@ -352,17 +414,15 @@ button:focus-visible,
 <!-- 무대 바깥 여백 장식 (JS 에서 아이콘을 흩뿌린다) -->
 <div id="bg-deco" aria-hidden="true"></div>
 
-<div id="stage">
-  <!-- 키트의 네 귀퉁이 별 장식 -->
-  <span class="corner-star tl">✦</span><span class="corner-star tr">✦</span>
-  <span class="corner-star bl">✦</span><span class="corner-star br">✦</span>
+<!-- 처음 보이는 화면이 타이틀이므로 on-title 로 시작한다 (별 장식 숨김) -->
+<div id="stage" class="on-title">
 
 
   <!-- 타이틀 -->
   <div id="screen-title" class="screen active">
     <div class="title-bottom">
-      <button id="btn-howto" class="title-btn">📖 How to Play</button>
-      <button id="btn-start" class="title-btn">🔎 Game Start</button>
+      <button id="btn-howto" class="title-btn plate-pink"><span>How to Play</span></button>
+      <button id="btn-start" class="title-btn plate-green"><span>Game Start</span></button>
     </div>
   </div>
 
@@ -372,6 +432,7 @@ button:focus-visible,
       <div class="select-title">🗝️ 원하는 주제를 선택하세요</div>
       <div id="major-grid" class="major-grid"></div>
     </div>
+    <img class="deco-char bl" src="characters/ui/bear_curious.png" alt="" height="118">
   </div>
 
   <!-- 소분류 -->
@@ -385,17 +446,18 @@ button:focus-visible,
         <button id="btn-game-start" disabled>🔓 Game Start</button>
       </div>
     </div>
+    <img class="deco-char br" src="characters/ui/rabbit_curious.png" alt="" height="128">
   </div>
 
   <!-- 게임 -->
   <div id="screen-game" class="screen">
     <div class="game-top">
-      <div class="badge" id="q-badge"><i class="fa-solid fa-fingerprint"></i> 단서 1 / 10</div>
+      <div class="badge" id="q-badge"><img class="kit-ico" src="characters/ui/dial.png" alt=""> 단서 1 / 10</div>
       <div class="code-progress">
         <span class="cp-label">Code Progress</span>
         <!-- 금고 다이얼처럼 알아낸 자리는 *, 남은 자리는 _ 로 채운다 -->
         <div id="cp-slots" class="cp-slots"></div>
-        <span class="cp-lock" id="cp-lock"><i class="fa-solid fa-lock"></i></span>
+        <span class="cp-lock" id="cp-lock"><img src="characters/ui/lock_small.png" alt=""></span>
       </div>
       <div class="badge" id="score-badge">⭐ 점수: 0</div>
     </div>
@@ -416,6 +478,8 @@ button:focus-visible,
   <!-- 엔딩 -->
   <div id="screen-end" class="screen">
     <div id="end-fx"></div>
+    <img class="end-char left" src="characters/ui/bear_full.png" alt="">
+    <img class="end-char right" src="characters/ui/rabbit_full.png" alt="">
     <div class="end-box">
       <div id="end-lock">🔒</div>
       <div class="end-sub" id="end-sub">SECRET CODE UNLOCKED!</div>
@@ -445,7 +509,8 @@ button:focus-visible,
   <!-- How to Play 모달 -->
   <div id="howto-overlay" class="overlay">
     <div class="popup howto-box">
-      <h2>📖 How to Play</h2>
+      <h2><img src="characters/ui/bear_thinking.png" alt="">How to Play</h2>
+      <img class="howto-divider" src="characters/ui/divider_star.png" alt="">
       <div class="learning-goal">
         <div class="lg-label">🎯 오늘의 학습 목표</div>
         <div class="lg-text">
@@ -453,6 +518,8 @@ button:focus-visible,
           알파벳을 <b>알맞은 순서</b>로 배열하여 단어를 완성할 수 있다.
         </div>
       </div>
+      <!-- 세 묶음을 두 단으로 나눠 배치한다. 한 단으로 세우면 세로가 넘쳐 스크롤이 생긴다 -->
+      <div class="howto-cols">
       <h3>🎮 How to Play</h3>
       <ul>
         <li>흩어진 글자 블록을 <b>드래그</b>해서 빈칸에 놓아 단어를 완성해요.</li>
@@ -470,6 +537,7 @@ button:focus-visible,
         <li>Hint를 쓸 때마다 그 문제 점수에서 <b>1점씩 감점</b>돼요.</li>
         <li>1번째: 한글 뜻 공개 → 2~4번째: 들어갈 글자와 자리 알려주기(잘못 놓인 글자엔 ❌) → 5번째: 글자 하나를 자동으로 넣어줘요.</li>
       </ul>
+      </div>
       <button class="p-btn" id="btn-howto-close">🔎 Game Start</button>
     </div>
   </div>
@@ -500,7 +568,12 @@ button:focus-visible,
 <audio id="au-correct" src="correct.mp3" preload="auto"></audio>
 <audio id="au-wrong" src="wrong.mp3" preload="auto"></audio>
 <audio id="au-drag" src="drag.mp3" preload="auto"></audio>
-<audio id="au-bgm" src="anagram%20background%20music.mp3" preload="auto" loop></audio>
+<!-- Hint 버튼을 눌렀을 때 나오는 알림 (파일 이름의 띄어쓰기는 %20 으로 적어야 안전하다).
+     62KB 라 미리 받아 둬야 누르는 즉시 소리가 난다 -->
+<audio id="au-hint" src="%ED%9E%8C%ED%8A%B8%20%EC%95%8C%EB%A6%BC.mp3" preload="auto"></audio>
+<!-- 배경음악은 3MB 라 미리 받으면 첫 화면이 늦게 뜬다.
+     preload="none" 으로 두고, 사용자가 처음 화면을 누른 뒤에 받아서 재생한다 -->
+<audio id="au-bgm" src="anagram%20background%20music.mp3" preload="none" loop></audio>
 
 <!-- [상단 네비게이션 - 전체 게임 공통, 위치 고정] 왼쪽: 홈/뒤로/앞으로, 오른쪽: How to Play/효과음/배경음/전체화면.
      이어진 하나의 바가 아니라 아이콘마다 따로 떠 있는 원형 버튼. title 속성으로 마우스오버 시 텍스트가 뜨도록 함 -->
@@ -602,6 +675,8 @@ window.addEventListener('resize',fitStage); fitStage();
 const screens=['screen-title','screen-major','screen-sub','screen-game','screen-end','screen-review'];
 function rawShow(id){
   screens.forEach(s=>document.getElementById(s).classList.toggle('active',s===id));
+  // 타이틀 그림에는 액자·별이 이미 그려져 있어 CSS 별 장식을 숨긴다
+  stage.classList.toggle('on-title',id==='screen-title');
   updateNavButtonStates();
 }
 function curScreen(){return screens.find(s=>document.getElementById(s).classList.contains('active'));}
@@ -713,6 +788,24 @@ function sfx(id){
 }
 document.getElementById('au-drag').volume=0.5;   // 타일 이동음은 조금 작게
 
+/* ── 힌트 알림 소리 ──
+   '힌트 알림.mp3' 는 앞 0.94초가 거의 들리지 않는 암소음이라,
+   그대로 재생하면 버튼을 눌러도 한참 뒤에 소리가 나는 것처럼 느껴진다.
+   그래서 그 부분을 건너뛰고 소리가 시작되는 지점부터 재생한다.
+   ▼ 소리 앞이 잘리면 이 값을 줄이고, 아직 늦게 들리면 늘리면 된다 (초 단위) */
+const HINT_SOUND_START=0.90;
+
+function playHintSound(){
+  if(sfxMuted)return;
+  const a=document.getElementById('au-hint');
+  const go=()=>{
+    try{ a.currentTime=HINT_SOUND_START; }catch(_){ }   // 아직 길이를 모르면 처음부터라도 재생
+    a.play().catch(()=>{});
+  };
+  if(a.readyState>=1) go();                                   // 이미 준비됨 → 즉시
+  else a.addEventListener('loadedmetadata',go,{once:true});    // 아니면 준비되는 대로
+}
+
 /* ══════════ 배경음악 on/off ══════════ */
 // 이 게임은 배경음악 트랙이 하나뿐이라 key 를 main 하나만 둔다.
 // (화면별로 곡을 나누고 싶으면 bgmTracks 에 key 를 추가하고 playBgm('키') 를 부르면 된다)
@@ -774,10 +867,10 @@ function toggleMusic(){
   }
 }
 
-// 페이지 로드 시 음소거 상태로 먼저 재생을 걸어두고, 사용자의 첫 클릭/터치/키 입력이 들어오는
-// 즉시 음소거를 풀어 끊김 없이 소리가 나오도록 함 (브라우저의 자동재생 정책 우회)
+// 배경음악(3MB)은 첫 화면이 뜨는 것을 방해하지 않도록 미리 받지 않는다.
+// 사용자가 처음 화면을 누르는 순간(= 어차피 소리를 틀 수 있게 되는 시점)에 받아서 재생한다.
+// 느린 와이파이에서 첫 화면이 훨씬 빨리 뜬다.
 function initBgm(){
-  tryPlayCurrentBgm();
   const unlockAudio=()=>{
     audioUnlocked=true;
     tryPlayCurrentBgm();
@@ -945,7 +1038,7 @@ function startGame(){
   gameWords=pool.slice(0,Math.min(MAX_QUESTIONS,pool.length));
   round=0;score=0;streak=0;results=[];wrongList=[];
   document.getElementById('result-chips').innerHTML='';
-  document.getElementById('cp-lock').innerHTML='<i class="fa-solid fa-lock"></i>';
+  document.getElementById('cp-lock').innerHTML='<img src="characters/ui/lock_small.png" alt="">';
   renderCodeSlots();
   updateHUD();loadQuestion();
 }
@@ -953,7 +1046,7 @@ function letterCount(w){return (w.match(/[A-Za-z]/g)||[]).length;}
 function tierScore(w){const n=letterCount(w);return n<=4?5:(n<=6?7:10);}
 function updateHUD(){
   document.getElementById('q-badge').innerHTML=
-    `<i class="fa-solid fa-fingerprint"></i> 단서 ${Math.min(round+1,gameWords.length)} / ${gameWords.length}`;
+    `<img class="kit-ico" src="characters/ui/dial.png" alt=""> 단서 ${Math.min(round+1,gameWords.length)} / ${gameWords.length}`;
   document.getElementById('score-badge').textContent=`⭐ 점수: ${score}`;
   updateCodeSlots();
 }
@@ -1099,6 +1192,7 @@ function firstWrongIndex(){
 }
 document.getElementById('btn-hint').onclick=()=>{
   if(hintUsed>=5||submitted)return;
+  playHintSound();   // 힌트 알림 소리 (효과음 끄기 버튼을 따른다)
   hintUsed++;
   document.getElementById('btn-hint').textContent=`🔍 Hint (${5-hintUsed})`;
   if(hintUsed>=5)document.getElementById('btn-hint').disabled=true;
@@ -1158,14 +1252,16 @@ document.getElementById('btn-submit').onclick=()=>{
     let bonus=streak>=2?2:0;
     score+=pts+bonus;
     pp.className='popup correct';
-    document.getElementById('rp-icon').textContent='🎉';
+    // 곰과 토끼가 번갈아 축하해 준다
+    const cheer=(round%2===0)?'bear_happy':'rabbit_happy';
+    document.getElementById('rp-icon').innerHTML=`<img src="characters/ui/${cheer}.png" alt="">`;
     document.getElementById('rp-title').textContent='정답이에요!';
     document.getElementById('rp-point').textContent=`+${pts}점`+(bonus?` (연속 정답 보너스 +${bonus}점 🔥)`:'')+(hintUsed?` · Hint -${hintUsed}점 적용`:'');
   } else {
     sfx('au-wrong');
     streak=0;wrongList.push(gameWords[round]);
     pp.className='popup wrong';
-    document.getElementById('rp-icon').textContent='😢';
+    document.getElementById('rp-icon').innerHTML='<img src="characters/ui/rabbit_thinking.png" alt="">';
     document.getElementById('rp-title').textContent='아쉬워요! 정답은...';
     // 아래 버튼이 이미 '다음 문제'로 안내하므로 따로 문구를 두지 않는다
     document.getElementById('rp-point').textContent='';
@@ -1178,7 +1274,8 @@ document.getElementById('btn-submit').onclick=()=>{
 
   results.push({word:en,ok});
   const chip=document.createElement('span');
-  chip.className='chip '+(ok?'ok':'no');chip.textContent=(ok?'✔ ':'✘ ')+en;
+  chip.className='chip '+(ok?'ok':'no');
+  chip.innerHTML=`<img class='kit-ico' src='characters/ui/icon_${ok?'correct':'wrong'}.png' alt=''>${en}`;
   document.getElementById('result-chips').appendChild(chip);
   updateHUD();
   setTimeout(()=>ov.classList.add('show'),ok?250:600);
@@ -1206,10 +1303,10 @@ function showEnd(){
   document.getElementById('end-title-txt').textContent='수고했어요! 다시 도전해볼까요?';
   document.getElementById('btn-review').style.display=wrongList.length?'inline-block':'none';
   const lock=document.getElementById('end-lock');
-  lock.innerHTML='<i class="fa-solid fa-lock"></i>';lock.classList.remove('open');
+  lock.innerHTML='<img src="characters/ui/lock_big.png" alt="">';lock.classList.remove('open');
   if(allWrong)return;   // 자물쇠는 잠긴 채로 두고 축포도 터뜨리지 않는다
   setTimeout(()=>{
-    lock.innerHTML='<i class="fa-solid fa-lock-open"></i>';
+    lock.innerHTML='<img src="characters/ui/lock_open_big.png" alt="">';
     lock.classList.add('open');sfx('au-correct');fireworks();
   },1200);
 }
