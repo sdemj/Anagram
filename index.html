@@ -1052,7 +1052,8 @@ function rawShow(id){
 }
 function curScreen(){return screens.find(s=>document.getElementById(s).classList.contains('active'));}
 function goTo(id){histBack.push(curScreen());histFwd=[];rawShow(id);}
-function goBack(){if(!histBack.length)return;histFwd.push(curScreen());rawShow(histBack.pop());}
+// 나가기를 확정하고 버린 게임 화면은 '앞으로' 에 남기지 않는다 (leavingGame 설명 참고)
+function goBack(){if(!histBack.length)return;if(leavingGame)histFwd=[];else histFwd.push(curScreen());rawShow(histBack.pop());}
 function goFwd(){if(!histFwd.length)return;histBack.push(curScreen());rawShow(histFwd.pop());}
 function goHome(){histBack=[];histFwd=[];rawShow('screen-title');}
 
@@ -1071,10 +1072,15 @@ function askLeaveGame(go){
   document.getElementById('leave-overlay').classList.add('show');
   focusIntoPopup();
 }
+/* 나가기를 확정하고 게임 화면을 버리는 중인지. '지금 나가면 풀던 문제가 사라져요' 라고
+   안내해 놓고도 '앞으로' 를 누르면 놓아 둔 글자까지 그대로 되살아났다 */
+let leavingGame=false;
 function confirmLeave(){
   document.getElementById('leave-overlay').classList.remove('show');
   const go=pendingLeave;pendingLeave=null;
+  leavingGame=true;
   if(go)go();
+  leavingGame=false;
 }
 function cancelLeave(){
   document.getElementById('leave-overlay').classList.remove('show');
