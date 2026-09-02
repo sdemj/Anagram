@@ -1436,7 +1436,7 @@ function renderBoard(){
         d.appendChild(t);}
       // 빈칸은 그 자체가 '놓을 자리' 라서 키보드로 고를 수 있어야 한다
       // (글자가 든 칸은 안의 타일이 대신 초점을 받는다)
-      else if(!submitted){d.tabIndex=0;d.addEventListener('keydown',slotKeydown);}
+      else if(!submitted)d.tabIndex=0;   // 이벤트는 판 전체에 한 번만 걸려 있다(아래 위임)
     }
     sl.appendChild(d);});
   poolTiles.forEach((ch,i)=>{
@@ -1453,9 +1453,8 @@ function makeTile(ch,size){
   // 글자에서 색을 정하므로 옮겨도 같은 블록 색이 유지된다 (키트의 A~E 블록)
   const tone=ch.toLowerCase().charCodeAt(0)%5;
   t.className='tile t'+tone;t.textContent=ch;
-  if(!submitted){t.tabIndex=0;t.addEventListener('keydown',tileKeydown);}
+  if(!submitted)t.tabIndex=0;   // 이벤트는 판 전체에 한 번만 걸려 있다(아래 위임)
   t.style.width=size.w+'px';t.style.height=size.h+'px';t.style.fontSize=size.f+'px';
-  if(!submitted)t.addEventListener('pointerdown',dragStart);
   return t;
 }
 function isFull(){return answer.split('').every((ch,i)=>!/[A-Za-z]/.test(ch)||slots[i]);}
@@ -1514,8 +1513,8 @@ function keyCancel(){
   return true;
 }
 
-function tileKeydown(e){
-  const t=e.currentTarget;
+function tileKeydown(e,t){
+  if(submitted)return;
   const from=t.dataset.from, idx=+t.dataset.idx;
   if(e.key==='Enter'||e.key===' '){
     e.preventDefault();
@@ -1530,21 +1529,38 @@ function tileKeydown(e){
     keyReturnToPool();
   }
 }
-function slotKeydown(e){
+function slotKeydown(e,d){
+  if(submitted)return;
   if(e.key!=='Enter'&&e.key!==' ')return;
   e.preventDefault();
-  if(keyHeld)keyPlace(+e.currentTarget.dataset.idx);
+  if(keyHeld)keyPlace(+d.dataset.idx);
 }
+
+/* 칸과 글자에 하나하나 이벤트를 붙이면, 문제를 풀 때마다 판을 다시 그리므로
+   같은 이벤트가 끝없이 쌓인다(자가점검에서 keydown 2,203건으로 잡힌 부분).
+   그래서 판 두 곳에만 한 번 붙여 두고, 눌린 대상을 찾아 넘겨준다 */
+['slots','pool'].forEach(id=>{
+  const box=document.getElementById(id);
+  box.addEventListener('keydown',e=>{
+    const t=e.target.closest('.tile');
+    if(t){tileKeydown(e,t);return;}
+    const d=e.target.closest('.slot:not(.fixed-char)');
+    if(d)slotKeydown(e,d);
+  });
+  box.addEventListener('pointerdown',e=>{
+    const t=e.target.closest('.tile');
+    if(t)dragStart(e,t);
+  });
+});
 
 /* ══════════ 드래그 (마우스+터치 통합, 탭 없음) ══════════ */
 let drag=null;
 const ghost=document.getElementById('drag-ghost');
 // 고스트는 반드시 body 직속이어야 함(조상에 transform이 있으면 fixed 좌표가 어긋남)
 if(ghost.parentNode!==document.body) document.body.appendChild(ghost);
-function dragStart(e){
+function dragStart(e,t){
   if(submitted||drag||!e.isPrimary)return;   // 이미 드래그 중이거나 두 번째 손가락이면 무시
   e.preventDefault();
-  const t=e.currentTarget;
   drag={from:t.dataset.from,idx:+t.dataset.idx,ch:t.textContent,el:t};
   t.classList.add('dragging-src');
   // 타일 안에서 '잡은 지점'을 기억해 커서와 완전히 붙어 움직이도록 함
@@ -1556,19 +1572,23 @@ function dragStart(e){
   ghost.appendChild(g);ghost.style.display='block';
   moveGhost(e);
   if(t.setPointerCapture){try{t.setPointerCapture(e.pointerId);}catch(_){}}
-  window.addEventListener('pointermove',moveGhost);
-  window.addEventListener('pointerup',dragEnd,{once:true});
 }
+// 끌 때마다 붙였다 떼면, 손을 창 밖에서 놓아 pointerup 을 놓친 경우가 그대로 남는다.
+// (자가점검에서 window/pointerup 61건으로 잡힌 부분) 그래서 한 번만 붙여 둔다
+window.addEventListener('pointermove',moveGhost);
+window.addEventListener('pointerup',dragEnd);
+window.addEventListener('pointercancel',dragEnd);
 function moveGhost(e){
   if(!drag)return;
   // 고스트는 #stage 바깥(body 직속)이므로 뷰포트 좌표를 그대로 사용 → 커서와 1:1로 붙어 이동
   ghost.style.transform=`translate3d(${e.clientX-drag.gx}px,${e.clientY-drag.gy}px,0)`;
 }
 function dragEnd(e){
-  window.removeEventListener('pointermove',moveGhost);
+  if(!drag)return;   // 끌고 있지 않을 때 들어온 것은 그냥 흘려보낸다
   ghost.style.display='none';ghost.style.transform='translate3d(-9999px,-9999px,0)';
-  if(!drag)return;
   drag.el.classList.remove('dragging-src');
+  // 손가락이 취소된 경우(전화 수신 등)에는 놓지 않고 제자리로 되돌린다
+  if(e.type==='pointercancel'){drag=null;renderBoard();return;}
   const under=document.elementFromPoint(e.clientX,e.clientY);
   const slotEl=under?under.closest('.slot:not(.fixed-char)'):null;
   const poolEl=under?under.closest('#pool'):null;
