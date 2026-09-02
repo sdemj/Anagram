@@ -470,12 +470,15 @@ button:focus-visible,
 /* How to Play */
 /* 설명이 길어 세로로 넘치던 것을 두 단 배치로 바꿔 한 화면에 담는다 (스크롤 없음) */
 .howto-box{max-width:1120px;text-align:left;max-height:672px;padding:26px 40px;}
-.howto-cols{columns:2;column-gap:38px;margin-top:4px;}
+/* 설명 글이 빽빽해 답답해 보여서 줄과 항목 사이를 넉넉히 띄웠다.
+   (max-height 672px 안에 스크롤 없이 들어가는 선까지만) */
+.howto-cols{columns:2;column-gap:38px;margin-top:20px;}
 .howto-cols h3{break-after:avoid;margin-top:0;}
-.howto-cols ul{break-inside:avoid;margin-bottom:12px;}
+.howto-cols ul{break-inside:avoid;margin-bottom:16px;}
 .howto-box h2{text-align:center;color:#A65A52;}
-.howto-box h3{font-family:var(--font-display);font-size:22px;color:#4A2F1B;margin:14px 0 4px;}
-.howto-box p,.howto-box li{font-family:var(--font-body);font-size:19px;line-height:1.55;color:var(--brown);}
+.howto-box h3{font-family:var(--font-display);font-size:22px;color:#4A2F1B;margin:16px 0 8px;}
+.howto-box p,.howto-box li{font-family:var(--font-body);font-size:19px;line-height:1.7;color:var(--brown);}
+.howto-box li{margin-bottom:7px;}
 .howto-box ul{padding-left:22px;}
 
 /* 학습 목표 */
@@ -491,7 +494,8 @@ button:focus-visible,
 .howto-box .p-btn{display:block;margin:18px auto 0;}
 .howto-box .p-btns{margin-top:18px;}
 .howto-box .p-btns .p-btn{margin:0;}
-.p-btn.go{background:linear-gradient(180deg,var(--pink),#C98488);border-color:#B87C82;color:#A65A52;
+/* Game Start 는 이 팝업의 주 버튼이라 한 톤 진하게 — 글자도 또렷하게 */
+.p-btn.go{background:linear-gradient(180deg,#C98488,#B06C74);border-color:#93555E;color:#FFF4F0;
   font-size:24px;padding:13px 48px;}
 
 /* 팝업 오른쪽 위 닫기(✕).
