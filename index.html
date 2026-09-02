@@ -493,6 +493,9 @@ button:focus-visible,
 .stat .s-num{font-family:var(--font-display);font-size:36px;color:#4A2F1B;}
 .stat .s-lab{font-family:var(--font-body);font-size:17px;color:var(--brown-lt);}
 .end-btns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;}
+/* 축포 판. 맨 뒤 층으로 두어 결과 상자와 캐릭터를 절대 가리지 않는다
+   (자리 잡기는 fireworks() 가 상자를 피해서 한다) */
+#end-fx{position:absolute;inset:0;z-index:0;pointer-events:none;}
 .confetti{position:absolute;top:-20px;border-radius:3px;z-index:5;animation:fall linear forwards;}
 @keyframes fall{to{transform:translateY(780px) rotate(720deg);opacity:.9;}}
 /* 폭죽 그림. 폭이 인라인 스타일로 하나씩 정해지므로 여기서는 높이만 자동으로 둔다 */
@@ -760,7 +763,7 @@ button:focus-visible,
       <h2>게임을 종료할까요?</h2>
       <div class="p-ask">지금 나가면 풀던 문제가 사라져요.</div>
       <div class="p-btns">
-        <button class="p-btn" id="btn-leave-ok">확인</button>
+        <button class="p-btn" id="btn-leave-ok">나가기</button>
         <button class="p-btn quit" id="btn-leave-cancel">계속하기</button>
       </div>
     </div>
@@ -1808,21 +1811,44 @@ function fireworks(){
     c.style.background=colors[i%colors.length];
     c.style.animationDuration=(2+Math.random()*2.5)+'s';
     c.style.animationDelay=(Math.random()*1.5)+'s';fx.appendChild(c);}
-  // 폭죽은 이모지 대신 그림으로 (기기마다 모양이 달라지지 않는다).
-  // 8개를 가로 4칸 x 세로 2칸에 하나씩 놓아 화면 전체에 고르게 퍼뜨린다.
-  // 크기를 조금씩 다르게 줘야 여러 개가 같은 판박이로 보이지 않는다
-  const cells=[];
-  for(let r=0;r<2;r++)for(let c=0;c<4;c++)cells.push([c,r]);
-  for(let i=cells.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[cells[i],cells[j]]=[cells[j],cells[i]];}
-  cells.forEach(([cx,cy])=>{
+  /* 폭죽은 이모지 대신 그림으로 (기기마다 모양이 달라지지 않는다).
+     폭죽 판이 결과 상자보다 뒤 층이라 상자에 걸치는 것이 있어도 괜찮다.
+     오히려 일부러 피하면 상자 둘레에만 둘러선 것처럼 어색해지므로,
+     화면 전체에 그냥 뿌린다. 대신 화면을 가로 3칸 x 세로 2칸으로 나눠
+     한 칸에 하나씩만 넣어 한쪽에 몰리지 않게 한다 (모두 여섯 개).
+     한 번 터질 때마다 맡은 칸 안에서 자리와 크기를 새로 잡으므로
+     늘 같은 곳에서만 터지지 않는다 */
+  const sEl=document.getElementById('screen-end');
+  const sw=sEl.offsetWidth||1280, sh=sEl.offsetHeight||720;
+  const COLS=3, ROWS=2;
+  const X1=8, X2=88, Y1=13, Y2=88;   // 폭죽 한가운데가 들어갈 범위
+  /* 이웃한 두 칸의 폭죽이 경계에 나란히 서면 한 덩어리처럼 붙어 보인다.
+     그래서 이웃과 맞닿는 안쪽 가장자리는 비워 둔다.
+     바깥쪽 끝(화면 가장자리 쪽)은 그대로 써야 상자 밖까지 나가 훤히 보이는 것도 생긴다 */
+  const INSET=0.22;
+  const rnd=(a,b)=>a+Math.random()*(b-a);
+  const band=(from,to,i,n)=>{
+    const w=(to-from)/n, m=w*INSET;
+    return rnd(from+i*w+(i===0?0:m), from+(i+1)*w-(i===n-1?0:m));
+  };
+  const place=(el,c,r)=>{
+    const cx=band(X1,X2,c,COLS), cy=band(Y1,Y2,r,ROWS);
+    const wpx=70+Math.random()*60;                    // 크기도 매번 조금씩 다르게
+    const wp=(wpx/sw)*100, hp=(wpx*220/196/sh)*100;   // 그림 비율 196x220
+    el.style.width=wpx.toFixed(0)+'px';
+    // 1.6배까지 커지므로 화면 끝을 넘지 않도록 한 번 더 가둔다
+    el.style.left=Math.min(86,Math.max(2,cx-wp/2)).toFixed(1)+'%';
+    el.style.top =Math.min(82,Math.max(2,cy-hp/2)).toFixed(1)+'%';
+  };
+  for(let r=0;r<ROWS;r++)for(let c=0;c<COLS;c++){
     const s=document.createElement('img');
     s.className='fw';s.src='characters/ui/firework.png';s.alt='';
-    // 1.6배까지 커지므로 4~81% 안에만 둔다 (그림이 화면 밖으로 나가지 않는 범위)
-    s.style.left=(4+(cx+Math.random()*0.85)*20).toFixed(1)+'%';
-    s.style.top =(8+(cy+Math.random()*0.8)*30).toFixed(1)+'%';
-    s.style.width=(70+Math.random()*60).toFixed(0)+'px';
     s.style.animationDelay=(Math.random()*1.4)+'s';
-    fx.appendChild(s);});
+    place(s,c,r);
+    // onanimationiteration 은 덮어쓰기라 여러 번 불려도 쌓이지 않는다
+    s.onanimationiteration=()=>place(s,c,r);
+    fx.appendChild(s);
+  }
 }
 // 다시 플레이할 때도 '뒤로'를 누르면 주제 선택으로 돌아가도록 기록을 맞춰준다
 document.getElementById('btn-replay').onclick=()=>{startGame();histBack=['screen-sub'];histFwd=[];rawShow('screen-game');};
