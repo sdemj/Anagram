@@ -1314,21 +1314,43 @@ Object.keys(WORD_DATA).forEach(majFull=>{
 
 /* ══════════ 소분류 렌더 + 커스텀 툴팁 ══════════ */
 const tooltip=document.getElementById('tooltip');
-function attachTooltip(el,title,words){
-  el.addEventListener('pointerenter',()=>{
+/* 소분류 칸은 화면에 들어올 때마다 통째로 새로 만들어진다. 버튼마다 이벤트를 붙이면
+   들어올 때마다 쌓이므로(자가점검에서 button/pointerenter 로 잡힌 부분),
+   버튼을 담는 줄에 한 번만 붙이고 지금 가리키는 버튼을 찾아 쓴다.
+   pointerenter/leave 는 위로 전해지지 않아 pointerover/out 을 쓴다 —
+   대신 버튼 안의 글자 사이를 오갈 때도 불리므로 그 경우는 흘려보낸다 */
+function subBtnAt(el){return el&&el.closest?el.closest('.sub-btn'):null;}
+(function(){
+  const row=document.getElementById('sub-row');
+  const sameBtn=(e,b)=>e.relatedTarget&&b.contains(e.relatedTarget);
+  row.addEventListener('pointerover',e=>{
+    const b=subBtnAt(e.target);
+    if(!b||sameBtn(e,b))return;
+    const words=(WORD_DATA[curMajor]||{})[b.dataset.sub];
+    if(words)showTooltip(b.dataset.sub,words);
+  });
+  row.addEventListener('pointerout',e=>{
+    const b=subBtnAt(e.target);
+    if(b&&!sameBtn(e,b))tooltip.style.display='none';
+  });
+  row.addEventListener('pointermove',e=>{
+    if(subBtnAt(e.target))moveTooltip(e);
+  });
+})();
+function showTooltip(title,words){
     // 'police officer' 처럼 띄어쓰기가 들어간 단어도 한 덩어리로 붙어 있도록
     // 단어 안의 공백은 줄바꿈되지 않는 공백으로 바꿔준다
     const list=words.map(w=>w[0].replace(/ /g,'\u00A0')).join(', ');
       tooltip.innerHTML=`<span class="tt-title">${title} (${words.length}단어)</span>${list}`;
-    tooltip.style.display='block';});
-  el.addEventListener('pointermove',e=>{
+    tooltip.style.display='block';
+}
+function moveTooltip(e){
     const r=stage.getBoundingClientRect();
     let x=(e.clientX-r.left)/SCALE+18, y=(e.clientY-r.top)/SCALE+18;
     tooltip.style.left='0px';tooltip.style.top='0px';tooltip.style.display='block';
     const tw=tooltip.offsetWidth, th=tooltip.offsetHeight;
     if(x+tw>1260)x=1260-tw; if(y+th>700)y=700-th;
-    tooltip.style.left=x+'px';tooltip.style.top=y+'px';});
-  el.addEventListener('pointerleave',()=>tooltip.style.display='none');
+    tooltip.style.left=x+'px';tooltip.style.top=y+'px';
 }
 function renderSub(){
   selectedSubs.clear();
@@ -1347,7 +1369,7 @@ function renderSub(){
     const b=document.createElement('button');
     b.className='sub-btn';b.dataset.sub=sub;
     b.innerHTML=`<span>${sub}</span><span class="sb-count">(${words.length}단어)</span>`;
-    attachTooltip(b,sub,words);
+    // 설명풍선은 위의 위임이 맡는다 (버튼마다 붙이지 않는다)
     b.onclick=()=>{selectedSubs.has(sub)?selectedSubs.delete(sub):selectedSubs.add(sub);refreshSub();};
     row.appendChild(b);});
   refreshSub();
