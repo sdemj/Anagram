@@ -361,7 +361,10 @@ button:focus-visible,
 @keyframes glowPulse{0%,100%{box-shadow:0 0 0 5px rgba(245,213,138,.45)}50%{box-shadow:0 0 4px 8px rgba(245,213,138,.8)}}
 .pool{min-height:115px;align-items:center;}
 /* 글자 블록 : 키트의 나무 블록. 글자마다 색이 정해져 옮겨도 같은 색을 유지한다 */
+/* -webkit-touch-callout:none — 태블릿에서 글자를 잠깐 누르고 있으면 뜨던 '복사·공유' 말풍선을
+   막는다. 그 말풍선이 뜨는 순간 끌던 동작이 취소돼 글자가 제자리로 돌아가 버렸다 */
 .tile{width:86px;height:96px;border-radius:14px;cursor:grab;user-select:none;touch-action:none;
+  -webkit-touch-callout:none;
   display:flex;align-items:center;justify-content:center;
   font-family:var(--font-display);font-size:50px;color:var(--kit-ink);
   background:linear-gradient(180deg,var(--block-face),#E6D2AC);
@@ -1509,17 +1512,32 @@ function updateCodeSlots(){
     el.textContent=done?'*':'_';
   });
 }
-function loadQuestion(){
-  submitted=false;hintUsed=0;
-  keyHeld=null;focusWish=null;   // 앞 문제에서 키보드로 집고 있던 글자는 놓아 준다
-  const [en]=gameWords[round];
-  answer=en;
+/* 정답 글자를 다시 섞어 글자판에 깔고 빈칸을 비운다 (고정문자는 미리 채운 채로).
+   문제를 새로 낼 때와 [초기화] 를 눌렀을 때가 하는 일이 같아 함께 쓴다 */
+function dealLetters(){
+  keyHeld=null;focusWish=null;   // 키보드로 집고 있던 글자는 놓아 준다
   slots=answer.split('').map(ch=>/[A-Za-z]/.test(ch)?null:ch); // 고정문자(공백·기호)는 미리 채움
-  let letters=answer.split('').filter(ch=>/[A-Za-z]/.test(ch));
+  const letters=answer.split('').filter(ch=>/[A-Za-z]/.test(ch));
   let sh; do{ sh=[...letters];
     for(let i=sh.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[sh[i],sh[j]]=[sh[j],sh[i]];}
   }while(sh.length>1&&sh.join('')===letters.join(''));
   poolTiles=sh;
+}
+/* [초기화] : 놓아 둔 글자만 글자판으로 되돌리고, 힌트를 쓴 기록(hintUsed)은 그대로 둔다.
+   예전에는 loadQuestion() 을 다시 불러 hintUsed 까지 0 이 됐고, 그래서 힌트를 본 뒤
+   초기화만 누르면 감점 없이 힌트를 몇 번이든 다시 볼 수 있었다 */
+function resetBoard(){
+  dealLetters();
+  // 감점이 그대로 남아 있다는 것을 다시 알려 준다
+  document.getElementById('hint-toast').textContent=
+    hintUsed?`글자만 다시 놓아요. Hint ${hintUsed}번(-${hintUsed}점)은 그대로예요.`:'';
+  renderBoard();
+}
+function loadQuestion(){
+  submitted=false;hintUsed=0;
+  const [en]=gameWords[round];
+  answer=en;
+  dealLetters();
   const m=document.getElementById('meaning-line');m.classList.remove('show');m.textContent='';
   document.getElementById('hint-toast').textContent='';
   document.getElementById('hint-left').textContent='5';   // 앞의 돋보기 그림은 그대로 둔다
@@ -1672,9 +1690,14 @@ const ghost=document.getElementById('drag-ghost');
 // 고스트는 반드시 body 직속이어야 함(조상에 transform이 있으면 fixed 좌표가 어긋남)
 if(ghost.parentNode!==document.body) document.body.appendChild(ghost);
 function dragStart(e,t){
-  if(submitted||drag||!e.isPrimary)return;   // 이미 드래그 중이거나 두 번째 손가락이면 무시
+  if(submitted||drag)return;   // 이미 다른 글자를 끌고 있으면 무시
+  /* 예전에는 !e.isPrimary 도 함께 걸렀다. 그런데 태블릿에서 한 손으로 화면을 짚고 있으면
+     그 손가락이 계속 primary 로 남아, 다른 손가락의 pointerdown 은 전부 isPrimary=false 가
+     된다. 그래서 화면을 짚은 채로는 글자가 아예 집히지 않았다.
+     두 개를 동시에 끄는 것은 위의 drag 검사와 아래 drag.id 로 막으므로 여기서는 보지 않는다 */
+  if(e.pointerType==='mouse'&&e.button!==0)return;   // 오른쪽·가운데 버튼으로는 끌지 않는다
   e.preventDefault();
-  drag={from:t.dataset.from,idx:+t.dataset.idx,ch:t.textContent,el:t};
+  drag={from:t.dataset.from,idx:+t.dataset.idx,ch:t.textContent,el:t,id:e.pointerId};
   t.classList.add('dragging-src');
   // 타일 안에서 '잡은 지점'을 기억해 커서와 완전히 붙어 움직이도록 함
   const r=t.getBoundingClientRect();
@@ -1692,12 +1715,15 @@ window.addEventListener('pointermove',moveGhost);
 window.addEventListener('pointerup',dragEnd);
 window.addEventListener('pointercancel',dragEnd);
 function moveGhost(e){
-  if(!drag)return;
+  // 끌고 있는 그 손가락(마우스)이 보낸 것만 따라간다 — 두 번째 손가락이 움직여도 흔들리지 않는다
+  if(!drag||e.pointerId!==drag.id)return;
   // 고스트는 #stage 바깥(body 직속)이므로 뷰포트 좌표를 그대로 사용 → 커서와 1:1로 붙어 이동
   ghost.style.transform=`translate3d(${e.clientX-drag.gx}px,${e.clientY-drag.gy}px,0)`;
 }
 function dragEnd(e){
-  if(!drag)return;   // 끌고 있지 않을 때 들어온 것은 그냥 흘려보낸다
+  /* 끌고 있지 않을 때 들어온 것과, 끌던 손가락이 아닌 다른 손가락이 떨어진 것은 흘려보낸다.
+     예전에는 화면을 짚고 있던 손을 떼기만 해도 그 자리에 글자가 놓여 버렸다 */
+  if(!drag||e.pointerId!==drag.id)return;
   ghost.style.display='none';ghost.style.transform='translate3d(-9999px,-9999px,0)';
   drag.el.classList.remove('dragging-src');
   // 손가락이 취소된 경우(전화 수신 등)에는 놓지 않고 제자리로 되돌린다
@@ -1777,7 +1803,7 @@ document.getElementById('btn-hint').onclick=()=>{
     toast.textContent=`마지막 Hint! 글자 하나를 넣어줬어요. (-${hintUsed}점)`;
   }
 };
-document.getElementById('btn-reset').onclick=()=>{if(!submitted)loadQuestion();};
+document.getElementById('btn-reset').onclick=()=>{if(!submitted)resetBoard();};
 
 /* ══════════ 제출 & 채점 ══════════ */
 /* 만든 답이 정답은 아니지만 실제로 있는 영단어이면 그 단어를, 아니면 빈 문자열을 준다.
@@ -1801,8 +1827,10 @@ function showAltWord(guess,ko){
 function closeAltWord(){
   stopSpokenAudio();
   document.getElementById('alt-overlay').classList.remove('show');
-  // 같은 문제를 다시 : 힌트 횟수·뜻 공개·글자판이 모두 이 문제 처음 상태로 돌아간다
-  loadQuestion();
+  /* 같은 문제를 다시 : 글자판만 처음 상태로 돌린다.
+     힌트 횟수까지 0 으로 돌리면, 힌트를 다 쓰고 다른 영단어를 한 번 내는 것만으로
+     감점이 사라져 [초기화] 와 똑같은 구멍이 된다 */
+  resetBoard();
 }
 document.getElementById('btn-alt-retry').onclick=closeAltWord;
 document.getElementById('btn-submit').onclick=()=>{
