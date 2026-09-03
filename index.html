@@ -68,7 +68,13 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   background:var(--parchment,#F4E6C8);color:var(--brown,#4A2F1B);}
 #rotate-hint.show{display:flex;}
 #rotate-hint .rh-box{width:132px;height:78px;border:6px solid var(--rose-gold,#C98488);border-radius:14px;
-  background:var(--cream,#FAF1DF);box-shadow:inset 0 0 0 3px rgba(255,255,255,.6),0 6px 0 rgba(92,64,48,.28);}
+  background:var(--cream,#FAF1DF);box-shadow:inset 0 0 0 3px rgba(255,255,255,.6),0 6px 0 rgba(92,64,48,.28);
+  animation:rotateHintAG 2.6s ease-in-out infinite;}
+@keyframes rotateHintAG{
+  0%,15%{transform:rotate(0deg);}
+  45%,60%{transform:rotate(-90deg);}
+  90%,100%{transform:rotate(0deg);}
+}
 #rotate-hint .rh-title{font-family:var(--font-display);font-size:27px;color:#A65A52;}
 #rotate-hint .rh-sub{font-family:var(--font-body);font-size:19px;line-height:1.5;}
 #rotate-hint button{font-family:var(--font-display);font-size:19px;padding:12px 26px;border-radius:16px;
