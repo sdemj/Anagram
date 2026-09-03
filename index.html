@@ -67,6 +67,7 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
   align-items:center;justify-content:center;gap:18px;padding:28px;text-align:center;
   background:var(--parchment,#F4E6C8);color:var(--brown,#4A2F1B);}
 #rotate-hint.show{display:flex;}
+#rotate-hint .rh-box-wrap{width:154px;height:154px;display:flex;align-items:center;justify-content:center;}
 #rotate-hint .rh-box{width:132px;height:78px;border:6px solid var(--rose-gold,#C98488);border-radius:14px;
   background:var(--cream,#FAF1DF);box-shadow:inset 0 0 0 3px rgba(255,255,255,.6),0 6px 0 rgba(92,64,48,.28);
   animation:rotateHintAG 2.6s ease-in-out infinite;}
@@ -861,7 +862,7 @@ button:focus-visible,
      이어진 하나의 바가 아니라 아이콘마다 따로 떠 있는 원형 버튼. title 속성으로 마우스오버 시 텍스트가 뜨도록 함 -->
 <!-- 세로로 든 휴대폰 안내. fitStage 가 화면 모양을 보고 켜고 끈다 -->
 <div id="rotate-hint" role="dialog" aria-live="polite">
-  <div class="rh-box"></div>
+  <div class="rh-box-wrap"><div class="rh-box"></div></div>
   <div class="rh-title">화면을 가로로 돌려 주세요</div>
   <div class="rh-sub">가로로 놓으면 글자와 블록이 커져서<br>훨씬 편하게 할 수 있어요.</div>
   <button type="button" id="rotate-hint-skip">이대로 할래요</button>
