@@ -227,8 +227,6 @@ button:focus-visible,
 .popup .p-icon img{display:block;margin:0 auto;height:112px;width:auto;}
 /* How to Play 모달 제목 옆 캐릭터 */
 .howto-box h2 img{height:52px;width:auto;vertical-align:-14px;margin-right:8px;}
-/* 제목 아래 별 구분선 */
-.howto-divider{display:block;margin:2px auto 6px;width:300px;height:auto;}
 
 /* ── 키트의 놋쇠 원형 아이콘 (이모지·글꼴아이콘 대체) ──
    모두 표시 크기의 2배로 만들어 둬서 무대가 확대돼도 흐릿해지지 않는다 */
@@ -745,7 +743,6 @@ button:focus-visible,
     <div class="popup howto-box">
       <button type="button" class="popup-x" id="btn-howto-x" title="닫기" aria-label="닫기">✕</button>
       <h2><img src="characters/ui/bear_thinking.png" alt="" loading="lazy">How to Play</h2>
-      <img class="howto-divider" src="characters/ui/divider_star.png" alt="" loading="lazy">
       <div class="learning-goal">
         <div class="lg-label">오늘의 학습 목표</div>
         <div class="lg-text">주제별 영어 단어를 알고, 알파벳을 <b>알맞은 순서</b>로 배열하여 단어를 완성할 수 있다</div>
@@ -760,14 +757,15 @@ button:focus-visible,
       </ul>
       <h3>점수 규칙</h3>
       <ul>
-        <li>3~4글자 단어 <b>5점</b> / 5~6글자 <b>7점</b> / 7글자 이상 <b>10점</b></li>
+        <li>4글자 이하 단어 <b>5점</b> / 5~6글자 <b>7점</b> / 7글자 이상 <b>10점</b></li>
         <li>2문제 이상 <b>연속 정답</b>이면 문제마다 보너스 <b>+2점</b>!</li>
         <li>오답이면 점수가 없고, 정답을 확인한 뒤 다음 문제로 넘어가요.</li>
+        <li>다른 영단어를 만들면 감점 없이 다시 할 기회를 얻어요.</li>
       </ul>
       <h3>Hint (한 문제당 최대 5번)</h3>
       <ul>
         <li>Hint를 쓸 때마다 그 문제 점수에서 <b>1점씩 감점</b>돼요.</li>
-        <li>1번째: 한글 뜻 공개 → 2~4번째: 들어갈 글자와 자리 알려주기(잘못 놓인 글자엔 빨간 X 표시) → 5번째: 글자 하나를 자동으로 넣어줘요.</li>
+        <li>1번째: 한글 뜻 공개 → 2~4번째: 들어갈 글자와 자리 알려주기(잘못 놓인 글자엔 빨간 X 표시) → 5번째: 한 글자 자동으로 넣기</li>
       </ul>
       </div>
       <!-- 타이틀에서 열면 아래 두 버튼, 게임 중에 ❓ 로 열면 오른쪽 위 ✕ 만 보인다 (openHowto 참고) -->
@@ -1784,6 +1782,13 @@ function firstWrongIndex(){
 }
 document.getElementById('btn-hint').onclick=()=>{
   if(hintUsed>=5||submitted)return;
+  /* 2번째 힌트부터는 잘못 놓인 글자를 알려 주거나 넣어 준다.
+     글자가 전부 제자리에 있으면 알려 줄 것이 없는데도 1점이 깎였으므로,
+     그때는 횟수를 쓰지 않고 제출하라고만 안내한다 (첫 힌트인 뜻 보기는 언제나 쓸모가 있다) */
+  if(hintUsed>=1&&firstWrongIndex()<0){
+    document.getElementById('hint-toast').textContent='글자가 모두 제자리에 있어요! [제출하기]를 눌러 보세요.';
+    return;
+  }
   playHintSound();   // 힌트 알림 소리 (효과음 끄기 버튼을 따른다)
   hintUsed++;
   document.getElementById('hint-left').textContent=5-hintUsed;
