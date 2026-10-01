@@ -2,10 +2,12 @@
 <html lang="ko">
 <head>
 <meta charset="UTF-8">
-<!-- 손가락으로 넓혔다 좁혔다 할 수 있게 열어 둔다. user-scalable=no 로 막아 두면
-     아이폰은 어차피 무시하고, 안드로이드는 '확대 강제 허용' 을 켠 기기에서만 늘어나는데
-     그때 눌린 자리가 어긋나 터치가 헛나갔다. 막지 않는 편이 오히려 정확하다 -->
-<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+<!-- 손가락 확대는 막는다. 무대(#stage)는 fitStage() 가 창 크기에 딱 맞춰 놓는데,
+     여기에 손가락 확대가 겹치면 무대만 늘어나고 상단바(position:fixed)는 제자리에 남아
+     배치가 어긋난다 — 태블릿에서 화면을 크게 늘렸을 때 깨지던 것이 이 현상이다.
+     아이패드 사파리는 이 설정만으로는 막히지 않으므로 아래 스크립트에서 확대 동작도 함께 막는다.
+     (데스크톱 브라우저 확대는 그대로 둔다 — innerWidth 가 같이 바뀌어 fitStage 가 다시 맞춘다) -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, minimum-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
 <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
 <meta http-equiv="Pragma" content="no-cache">
 <meta http-equiv="Expires" content="0">
@@ -79,9 +81,9 @@ html{-webkit-text-size-adjust:100%;text-size-adjust:100%;}
 /* 단, 철자를 치는 칸은 선택·복사가 되어야 한다 */
 #stage input{user-select:text;-webkit-user-select:text;}
 /* 무대 바깥(레터박스) 여백 — 키트의 진한 갈색. 밝은 무대가 액자처럼 떠 보인다 */
-/* touch-action:manipulation — 두 번 톡톡 쳐서 확대되는 동작만 끈다.
-   손가락 두 개로 넓히는 확대는 그대로 된다. 이걸 꺼 두지 않으면
-   빨리 두 번 누를 때 두 번째가 확대로 먹혀 버튼이 안 눌린다 */
+/* touch-action:manipulation — 두 번 톡톡 쳐서 확대되는 동작을 끈다. 이걸 꺼 두지 않으면
+   빨리 두 번 누를 때 두 번째가 확대로 먹혀 버튼이 안 눌린다.
+   손가락 두 개로 넓히는 확대는 아래 스크립트('손가락 확대 막기')가 따로 막는다 */
 html,body{width:100%;height:100%;overflow:hidden;touch-action:manipulation;background:#5B4636;font-family:var(--font-body);color:var(--brown);
   /* 두 폰트 모두 굵기가 하나뿐 → 브라우저가 억지로 굵게 만드는 것(가짜 볼드)을 막는다 */
   font-synthesis:none;-webkit-font-synthesis:none;
@@ -271,6 +273,10 @@ button:focus-visible,
   display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.2;}
 .btn-all .sb-count,.sub-btn .sb-count{font-family:var(--font-body);font-size:16px;color:var(--brown-lt);}
 .btn-all.on .sb-count,.sub-btn.on .sb-count{color:rgba(255,255,255,.85);}
+/* 소분류 이름 : 우리말이 윗줄(22px, 위 .sub-btn 글자 크기 그대로), 영어는 그 아래 작게.
+   대분류 칸의 .major-btn .en 과 같은 모양이라 두 화면이 이어져 보인다 */
+.sub-btn .sb-en{font-family:var(--font-body);font-size:16px;color:var(--brown-lt);}
+.sub-btn.on .sb-en{color:rgba(255,255,255,.85);}
 .btn-all{width:100%;background:linear-gradient(180deg,var(--gold),#EBC26A);}
 .sub-row{display:flex;gap:16px;width:100%;}
 .sub-btn{flex:1;}
@@ -606,6 +612,11 @@ button:focus-visible,
 /* ── 무대 바깥 여백에 깔리는 탐정 소품 (돋보기·자물쇠·열쇠·물음표·메모·발자국) ──
    #stage 보다 먼저 그려지도록 DOM 에서 앞에 두고 z-index 를 0 으로 둔다.
    화면 전체에 흩뿌리면 무대에 가려지는 것은 자연히 안 보이고 여백 부분만 남는다 */
+/* '가로로 돌려 주세요' 안내가 떠 있는 동안에는 상단바를 감춘다.
+   상단바의 z-index(2147483000)가 안내창(100000)보다 훨씬 높아 그냥 두면 안내창 위로 떠오른다.
+   팝업이 열렸을 때 쓰는 topnav.css 의 body.modal-open 규칙과 같은 방식이다 */
+body.rotate-open #top-nav-bar{visibility:hidden;}
+
 #bg-deco{position:fixed;inset:0;z-index:0;pointer-events:none;overflow:hidden;}
 #bg-deco i{position:absolute;color:#F7EEDC;
   filter:drop-shadow(0 1px 1px rgba(0,0,0,.25));}
@@ -924,6 +935,25 @@ const ALT_WORDS = {
   study:"dusty", taste:"state", tea:"ate eat", ten:"net", thin:"hint", three:"ether there",
   throw:"worth", time:"item", tired:"tried", top:"opt pot", two:"tow", weak:"wake"
 };
+/* ── 소분류 이름의 우리말 짝 ──
+   소분류 칸에는 우리말을 크게 위에, 영어는 그 아래 작게 보여준다 (대분류 칸과 같은 모양).
+   WORD_DATA 의 키는 영어 이름 그대로 두고 화면에 보일 때만 이 표를 거친다 —
+   키를 우리말로 바꾸면 선택 상태(dataset.sub)와 mp3 폴더 찾기가 모두 어긋난다.
+   표에 없는 이름이 들어오면 영어만 그대로 보여준다 (화면이 비지 않게) */
+const SUB_KO = {
+  'Number':'숫자', 'Color':'색깔', 'Time&Date':'시간과 날짜',
+  'Body':'몸', 'Family&People':'가족과 사람', 'Animal':'동물',
+  'Sports&Hobby':'운동과 취미', 'Subject&Class':'과목과 수업', 'Job':'직업',
+  'Fruit&Vegetable':'과일과 채소', 'Meal&Snack':'식사와 간식', 'Drink&Taste':'음료와 맛',
+  'Country':'나라', 'Nature':'자연', 'Weather':'날씨',
+  'Place':'장소', 'Transportation':'교통수단', 'Direction&Position':'방향과 위치',
+  'School Supplies':'학용품', 'Household':'생활용품', 'Clothing':'옷',
+  'Daily Action':'일상 동작', 'Move&Play':'움직임과 놀이', 'Talk&Feel':'말과 감정',
+  'Look':'생김새', 'Character':'성격', 'Feeling':'기분'
+};
+// 설명풍선 제목처럼 한 줄로 써야 할 때 : "숫자 Number"
+function subLabel(sub){return SUB_KO[sub]?SUB_KO[sub]+' '+sub:sub;}
+
 /* 대분류마다 이모지를 붙였던 표(MAJOR_META)는 걷어냈다.
    같은 이모지가 기기마다 다른 그림으로 나와 교실에서 제각각으로 보이기 때문이다.
    대신 주제 이름을 키워서 칸이 허전하지 않게 했다 (아래 대분류 렌더 부분). */
@@ -966,7 +996,10 @@ let rotateHintSkipped=false;
 function updateRotateHint(w,h,scale){
   const el=document.getElementById('rotate-hint');
   if(!el)return;
-  el.classList.toggle('show', h>w && scale<0.5 && !rotateHintSkipped);
+  const show = h>w && scale<0.5 && !rotateHintSkipped;
+  el.classList.toggle('show', show);
+  // 안내창이 떠 있는 동안에는 상단바를 감춘다 (위 body.rotate-open 규칙)
+  document.body.classList.toggle('rotate-open', show);
 }
 window.addEventListener('resize',()=>fitStage());
 /* 가로·세로를 돌리면 창 크기가 바로 반영되지 않는 기기가 있어 한 박자 뒤에 한 번 더 맞춘다.
@@ -986,8 +1019,20 @@ document.addEventListener('focusout',()=>{if(!fitPending)return;setTimeout(()=>{
 document.getElementById('rotate-hint-skip').addEventListener('click',()=>{
   rotateHintSkipped=true;
   document.getElementById('rotate-hint').classList.remove('show');
+  document.body.classList.remove('rotate-open');   // 감춰 둔 상단바를 다시 보이게 한다
 });
 window.addEventListener('orientationchange',()=>{rotateHintSkipped=false;});
+
+/* ══════════ 손가락 확대 막기 ══════════
+   meta viewport 의 user-scalable=no 를 아이패드·아이폰 사파리는 무시하므로
+   확대 동작 자체를 막는다. 한 손가락 끌기(글자 블록 옮기기)는 건드리지 않는다.
+     · gesturestart/change/end  : 사파리의 두 손가락 확대
+     · touchmove(손가락 2개 이상) : 안드로이드 태블릿 공통
+   두 번 톡톡 쳐서 확대되는 것은 html,body 의 touch-action:manipulation 이 이미 막고 있다 */
+['gesturestart','gesturechange','gestureend'].forEach(t=>
+  document.addEventListener(t,e=>e.preventDefault(),{passive:false}));
+document.addEventListener('touchmove',e=>{if(e.touches.length>1)e.preventDefault();},{passive:false});
+
 fitStage();
 
 /* ══════════ 무대 바깥 여백 장식 ══════════
@@ -1420,7 +1465,7 @@ function subBtnAt(el){return el&&el.closest?el.closest('.sub-btn'):null;}
     const b=subBtnAt(e.target);
     if(!b||sameBtn(e,b))return;
     const words=(WORD_DATA[curMajor]||{})[b.dataset.sub];
-    if(words)showTooltip(b.dataset.sub,words);
+    if(words)showTooltip(subLabel(b.dataset.sub),words);   // "숫자 Number (15단어)"
   });
   row.addEventListener('pointerout',e=>{
     const b=subBtnAt(e.target);
@@ -1461,7 +1506,11 @@ function renderSub(){
   Object.entries(subs).forEach(([sub,words])=>{
     const b=document.createElement('button');
     b.className='sub-btn';b.dataset.sub=sub;
-    b.innerHTML=`<span>${sub}</span><span class="sb-count">(${words.length}단어)</span>`;
+    // 우리말이 윗줄, 영어는 아랫줄. 표에 없는 이름이면 영어만 윗줄에 둔다
+    const ko=SUB_KO[sub];
+    b.innerHTML=`<span>${ko||sub}</span>`
+      +(ko?`<span class="sb-en">${sub}</span>`:'')
+      +`<span class="sb-count">(${words.length}단어)</span>`;
     // 설명풍선은 위의 위임이 맡는다 (버튼마다 붙이지 않는다)
     b.onclick=()=>{selectedSubs.has(sub)?selectedSubs.delete(sub):selectedSubs.add(sub);refreshSub();};
     row.appendChild(b);});
@@ -1559,8 +1608,11 @@ function renderBoard(){
     if(!/[A-Za-z]/.test(ch)){
       d.className='slot fixed-char';
       d.textContent=ch===' '?'':ch;
-      // 공백은 낱말 사이만 띄우고, 마침표·하이픈은 글자에 붙도록 폭을 좁힌다
-      d.style.width=Math.round(size.w*(ch===' '?0.26:0.30))+'px';
+      /* 공백은 낱말 사이만 띄우고, 마침표·하이픈은 글자에 붙도록 폭을 좁힌다.
+         눈에 보이는 틈은 '이 칸의 폭 + 양옆 gap(17+17)' 이라서, 틈을 반쯤 더 벌리려면
+         칸 폭만 0.26 → 0.62 로 키워야 한다 (긴 단어 기준 52px → 77px).
+         'police officer' 한 줄 폭은 1174px 로 .slots 의 max-width(1212px) 안에 남는다 */
+      d.style.width=Math.round(size.w*(ch===' '?0.62:0.30))+'px';
       d.style.fontSize=size.f+'px';   // 글자 타일과 같은 크기라야 기준선이 맞는다
     }
     else{
