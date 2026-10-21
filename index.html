@@ -915,6 +915,7 @@ body.rotate-open #top-nav-bar{visibility:hidden;}
   </div>
 </div>
 <script src="topnav.js" data-backdrop="title.jpg"></script>
+<script src="sfx.js"></script>
 
 <script>
 /* ══════════ 데이터 ══════════ */
@@ -1243,11 +1244,18 @@ function toggleSfx(){
   if(icon)icon.className=sfxMuted?'fa-solid fa-bell-slash':'fa-solid fa-bell';
 }
 
+// 효과음은 sfx.js 가 튼다 (아이패드에서 소리가 났다 안 났다 하던 문제 — sfx.js 첫머리 참고).
+// 이름은 <audio> 의 id 를 그대로 쓴다
+GameSfx.add('au-correct','au-correct');
+GameSfx.add('au-wrong','au-wrong');
+GameSfx.add('au-drag','au-drag',{volume:0.5});   // 타일 이동음은 조금 작게
+GameSfx.add('au-hint','au-hint');
+GameSfx.add('au-success','au-success');
+
 function sfx(id){
   if(sfxMuted)return;
-  const a=document.getElementById(id);a.currentTime=0;a.play().catch(()=>{});
+  GameSfx.play(id);
 }
-document.getElementById('au-drag').volume=0.5;   // 타일 이동음은 조금 작게
 
 /* ── 힌트 알림 소리 ──
    '힌트 알림.mp3' 는 앞 0.94초가 거의 들리지 않는 암소음이라,
@@ -1258,13 +1266,7 @@ const HINT_SOUND_START=0.90;
 
 function playHintSound(){
   if(sfxMuted)return;
-  const a=document.getElementById('au-hint');
-  const go=()=>{
-    try{ a.currentTime=HINT_SOUND_START; }catch(_){ }   // 아직 길이를 모르면 처음부터라도 재생
-    a.play().catch(()=>{});
-  };
-  if(a.readyState>=1) go();                                   // 이미 준비됨 → 즉시
-  else a.addEventListener('loadedmetadata',go,{once:true});    // 아니면 준비되는 대로
+  GameSfx.play('au-hint',{offset:HINT_SOUND_START});
 }
 
 /* ══════════ 배경음악 on/off ══════════ */
@@ -1421,10 +1423,7 @@ function stopVoice(){
    (배경음악은 stopVoice 가 원래 설정대로 되돌려 준다) */
 function stopSpokenAudio(){
   stopVoice();
-  ['au-correct','au-wrong','au-hint','au-success'].forEach(id=>{
-    const a=document.getElementById(id);
-    if(a&&!a.paused){a.pause();a.currentTime=0;}
-  });
+  GameSfx.stop(['au-correct','au-wrong','au-hint','au-success']);
 }
 
 /* ══════════ 화면을 가렸을 때 소리 멈추기 ══════════
