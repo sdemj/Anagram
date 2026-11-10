@@ -870,15 +870,15 @@ body.rotate-open #top-nav-bar{visibility:hidden;}
 <!-- Hint 버튼을 눌렀을 때 나오는 알림. 62KB 라 미리 받아 둬야 누르는 즉시 소리가 난다.
      ▼ 아래 세 파일 모두 이름을 폴더에 있는 그대로 적는다. 띄어쓰기와 한글은 브라우저가
        알아서 주소로 바꿔 주고, %-표기로 적으면 점검 도구가 실제 파일과 대조하지 못한다 -->
-<audio id="au-hint" src="힌트 알림.mp3" preload="auto"></audio>
+<audio id="au-hint" src="hint_alert.mp3" preload="auto"></audio>
 <!-- 마지막 결과 화면에서 자물쇠가 열릴 때 (한 판에 한 번만 나는 소리) -->
-<audio id="au-success" src="성공.mp3" preload="auto"></audio>
+<audio id="au-success" src="success.mp3" preload="auto"></audio>
 <!-- 배경음악은 3MB 라 미리 받으면 첫 화면이 늦게 뜬다.
      preload="none" 으로 두고, 사용자가 처음 화면을 누른 뒤에 받아서 재생한다 -->
 <audio id="au-bgm" src="anagram background music.mp3" preload="none" loop></audio>
 <!-- 타이틀 · 주제 선택 화면에서 나오는 음악 (게임 화면부터는 위 배경음악으로 바뀐다).
      3.2MB 라 마찬가지로 미리 받지 않는다 -->
-<audio id="au-intro-bgm" src="인트로 음악.mp3" preload="none" loop></audio>
+<audio id="au-intro-bgm" src="intro_music.mp3" preload="none" loop></audio>
 
 <!-- [상단 네비게이션 - 전체 게임 공통, 위치 고정] 왼쪽: 홈/뒤로/앞으로, 오른쪽: How to Play/효과음/배경음/전체화면.
      이어진 하나의 바가 아니라 아이콘마다 따로 떠 있는 원형 버튼. title 속성으로 마우스오버 시 텍스트가 뜨도록 함 -->
@@ -1460,10 +1460,11 @@ window.addEventListener('pageshow',()=>setPageHidden(document.hidden));
    curMajor 는 "물건\nThings" 처럼 줄바꿈으로 영문이 붙어 있으므로 앞부분만 쓴다.
    'the U.S.' / 'P.E.' 처럼 마침표로 끝나는 단어는 파일명에 그 마침표가 없다
    (the U.S.mp3). 그래서 끝의 마침표는 떼고 찾는다. */
+const TOPIC_DIR={'국가와 자연':'country_nature','동작':'action','물건':'things','사람과 동물':'people_animals','숫자·색깔·시간':'number_color_time','음식과 음료':'food_drink','장소·교통·방향':'place_transport_direction','취미·과목·직업':'hobby_subject_job','특징과 감정':'feature_feeling'};   // CMS가 한글 경로를 못 읽어 녹음 폴더 이름을 영문으로 바꿨다 (미래엔 이름 대조표)
 function voiceSrc(word){
   const folder=(curMajor||'').split('\n')[0];
   const base=word.endsWith('.')?word.slice(0,-1):word;
-  return encodeURIComponent(folder)+'/'+encodeURIComponent(base)+'.mp3';
+  return (TOPIC_DIR[folder]||encodeURIComponent(folder))+'/'+encodeURIComponent(base)+'.mp3';
 }
 
 // 발음 듣기 버튼 : 재생 중에는 표시를 남기고 끝나면 되돌린다
